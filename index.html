@@ -81,7 +81,7 @@ button{font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;}
 .tab-btn{
   flex:1;border:none;background:none;padding:6px 0 8px;
   display:flex;flex-direction:column;align-items:center;gap:1px;
-  color:var(--txt3);font-size:9.5px;font-weight:500;
+  color:var(--txt3);font-size:9px;font-weight:500;
   transition:color 0.15s;font-family:'Plus Jakarta Sans',sans-serif;
 }
 .tab-btn svg{width:20px;height:20px;}
@@ -385,6 +385,47 @@ button{font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;}
 .hist-date{font-size:9px;color:var(--txt3);font-family:'DM Mono',monospace;text-align:center;}
 .hist-pct{font-size:9px;color:var(--txt2);text-align:center;}
 
+
+/* ── CAPAIAN IKI TAB ─────────────── */
+.cap-toolbar{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;}
+.cap-label{font-size:12px;font-weight:600;color:var(--txt2);flex-shrink:0;}
+.cap-select{border:0.5px solid var(--border2);border-radius:var(--r-sm);padding:7px 10px;font-size:13px;background:var(--bg);color:var(--txt);font-family:'Plus Jakarta Sans',sans-serif;flex:1;min-width:120px;}
+.cap-select:focus{outline:none;border-color:var(--teal);}
+.cap-legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+.cap-leg-item{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--txt2);}
+.cap-leg-dot{width:8px;height:8px;border-radius:50%;}
+.cap-table-wrap{overflow-x:auto;border:0.5px solid var(--border);border-radius:var(--r);margin-bottom:14px;}
+.cap-table{width:100%;border-collapse:collapse;min-width:560px;}
+.cap-table th{background:var(--teal-light);color:var(--teal);font-size:10px;font-weight:700;padding:6px 8px;text-align:center;border:0.5px solid var(--border);white-space:nowrap;}
+.cap-table th.left{text-align:left;}
+.cap-table td{padding:4px 6px;border:0.5px solid var(--border);vertical-align:middle;font-size:11px;}
+.cap-table tr:nth-child(even) td{background:var(--bg2);}
+.cap-table .no-col{width:44px;text-align:center;color:var(--txt3);font-family:'DM Mono',monospace;font-size:10px;}
+.cap-table .indi-col{min-width:180px;max-width:280px;line-height:1.4;}
+.cap-table .indi-col.owned{font-weight:600;color:var(--teal);}
+.cap-table .target-col{width:64px;text-align:center;font-family:'DM Mono',monospace;font-size:10px;color:var(--txt2);white-space:nowrap;}
+.cap-input{width:100%;border:0.5px solid var(--border2);border-radius:4px;padding:4px 5px;font-size:11px;font-family:'DM Mono',monospace;background:var(--bg);color:var(--txt);text-align:center;min-width:48px;}
+.cap-input:focus{outline:none;border-color:var(--teal);background:var(--teal-pale);}
+.cap-input.achieved{border-color:#5DCAA5;background:var(--teal-light);}
+.cap-input.at-risk{border-color:#EF9F27;background:var(--amber-light);}
+.cap-input.missed{border-color:#E24B4A;background:var(--red-light);}
+.cap-q-cell{position:relative;}
+.cap-q-badge{display:block;font-size:9px;font-weight:700;text-align:center;padding:1px 0;border-radius:2px;margin-top:2px;}
+.cap-q-badge.achieved{background:var(--teal-light);color:var(--teal);}
+.cap-q-badge.at-risk{background:var(--amber-light);color:var(--amber);}
+.cap-q-badge.missed{background:var(--red-light);color:var(--red);}
+.cap-q-badge.empty{background:var(--bg3);color:var(--txt3);}
+.cap-section-row td{background:var(--teal-pale)!important;font-size:10px;font-weight:700;color:var(--teal);padding:4px 8px;}
+.cap-save-row{display:flex;gap:8px;margin-bottom:14px;}
+.btn-cap-save{flex:1;background:var(--teal);color:white;border:none;border-radius:var(--r-sm);padding:11px;font-size:13px;font-weight:600;}
+.btn-cap-print{background:var(--bg2);border:0.5px solid var(--border2);color:var(--txt2);border-radius:var(--r-sm);padding:11px 16px;font-size:13px;}
+.cap-summary{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--r-sm);padding:10px 14px;margin-bottom:14px;}
+.cap-summary-title{font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;}
+.cap-summary-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.cap-ss{text-align:center;}
+.cap-ss .n{font-size:18px;font-weight:700;font-family:'DM Mono',monospace;}
+.cap-ss .l{font-size:10px;color:var(--txt2);margin-top:1px;}
+
 /* ── EMPTY ────────────────────── */
 .empty{text-align:center;padding:40px 20px;color:var(--txt2);}
 .empty svg{width:48px;height:48px;margin:0 auto 12px;color:var(--txt3);}
@@ -623,6 +664,54 @@ button{font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;}
     </div>
   </div>
 
+  <!-- CAPAIAN IKI -->
+  <div class="view" id="view-capaian">
+    <div class="cap-toolbar">
+      <span class="cap-label">Tahun</span>
+      <select class="cap-select" id="cap-year" onchange="renderCapaian()" style="max-width:90px">
+        <option value="2026">2026</option>
+        <option value="2027">2027</option>
+      </select>
+      <span class="cap-label">Triwulan</span>
+      <select class="cap-select" id="cap-quarter" onchange="renderCapaian()">
+        <option value="1">Triwulan I</option>
+        <option value="2">Triwulan II</option>
+        <option value="3">Triwulan III</option>
+        <option value="4">Triwulan IV</option>
+      </select>
+    </div>
+    <div class="cap-legend">
+      <div class="cap-leg-item"><div class="cap-leg-dot" style="background:#1D9E75"></div>Tercapai</div>
+      <div class="cap-leg-item"><div class="cap-leg-dot" style="background:#EF9F27"></div>Berisiko</div>
+      <div class="cap-leg-item"><div class="cap-leg-dot" style="background:#E24B4A"></div>Tidak tercapai</div>
+      <div class="cap-leg-item" style="margin-left:auto"><span style="font-size:11px;color:var(--teal);font-weight:600">★ IKI Ketua Tim</span></div>
+    </div>
+    <div id="cap-summary-block"></div>
+    <div class="cap-table-wrap">
+      <table class="cap-table">
+        <thead>
+          <tr>
+            <th rowspan="2" style="width:44px">No.</th>
+            <th rowspan="2" class="left">Indikator Kinerja</th>
+            <th rowspan="2" style="width:64px">Target Triwulan</th>
+            <th colspan="3" id="cap-month-header">Capaian Bulanan</th>
+            <th rowspan="2" style="width:68px">Total Triwulan</th>
+          </tr>
+          <tr id="cap-month-subheader">
+            <th style="width:60px" id="cap-m1-hdr">M1</th>
+            <th style="width:60px" id="cap-m2-hdr">M2</th>
+            <th style="width:60px" id="cap-m3-hdr">M3</th>
+          </tr>
+        </thead>
+        <tbody id="cap-table-body"></tbody>
+      </table>
+    </div>
+    <div class="cap-save-row">
+      <button class="btn-cap-save" onclick="saveCapaian()">Simpan Capaian</button>
+      <button class="btn-cap-print" onclick="printCapaian()">Cetak Laporan</button>
+    </div>
+  </div>
+
   <!-- PENGATURAN -->
   <div class="view" id="view-pengaturan">
 
@@ -693,9 +782,14 @@ button{font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;}
     Cetak
     <div class="tab-indicator"></div>
   </button>
+  <button class="tab-btn" id="tab-capaian" onclick="switchTab('capaian')">
+    <svg fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+    Capaian
+    <div class="tab-indicator"></div>
+  </button>
   <button class="tab-btn" id="tab-pengaturan" onclick="switchTab('pengaturan')">
     <svg fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke="currentColor" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-    Pengaturan
+    ⚙
     <div class="tab-indicator"></div>
   </button>
 </nav>
@@ -865,7 +959,9 @@ let state = {
   },
   customTasks: [],
   customReports: [],
-  dailyHistory: []
+  dailyHistory: [],
+  capaian: {},
+  capaianYear: 2026
 };
 
 function loadState(){
@@ -898,6 +994,7 @@ function switchTab(name){
   if(name==='checklist')   renderChecklist();
   if(name==='arsip')       renderArchive();
   if(name==='print')       renderPrint();
+  if(name==='capaian')     renderCapaian();
   if(name==='pengaturan')  renderPengaturan();
 }
 
@@ -1316,6 +1413,41 @@ function showToast(msg){
   toastTimer = setTimeout(()=>el.classList.remove('show'), 2200);
 }
 
+
+
+/* ═══════════════════════════════
+   CAPAIAN IKI DATA — LIM
+═══════════════════════════════ */
+const LIM_IKI = [
+  {no:'1.1.1', indi:'Persentase akurasi informasi METAR',                                                           target:'100%',    satuan:'%',       type:'pct'},
+  {no:'1.1.2', indi:'Persentase akurasi informasi TAF',                                                             target:'97,5%',   satuan:'%',       type:'pct'},
+  {no:'1.1.3', indi:'Persentase penyediaan informasi Flight Documentation',                                         target:'100%',    satuan:'%',       type:'pct'},
+  {no:'1.1.4', indi:'Persentase akurasi informasi AD WRNG',                                                         target:'97,5%',   satuan:'%',       type:'pct'},
+  {no:'1.1.5', indi:'Indeks penyampaian hasil analisis fenomena meteorologi signifikan dan atau cuaca ekstrem secara lengkap', target:'4 Indeks', satuan:'Indeks', type:'indeks', qTarget:1},
+  {no:'1.1.6', indi:'Indeks penyelesaian laporan operasional melalui Portal Laporan Stasiun Meteorologi Penerbangan',target:'4 Indeks', satuan:'Indeks', type:'indeks', qTarget:1, owned:true},
+  {no:'1.1.7', indi:'Hasil evaluasi akurasi informasi METAR',                                                       target:'3 Lap.',  satuan:'Lap.',    type:'count', qTarget:3},
+  {no:'1.1.8', indi:'Hasil evaluasi akurasi informasi TAF',                                                         target:'3 Lap.',  satuan:'Lap.',    type:'count', qTarget:3},
+  {no:'1.1.9', indi:'Hasil evaluasi penyediaan Flight Documentation',                                               target:'3 Lap.',  satuan:'Lap.',    type:'count', qTarget:3},
+  {no:'1.1.10',indi:'Hasil monitoring data statistik penerbangan',                                                   target:'3 Lap.',  satuan:'Lap.',    type:'count', qTarget:3},
+  {no:'1.1.11',indi:'Hasil evaluasi akurasi informasi AD WRNG',                                                      target:'3 Lap.',  satuan:'Lap.',    type:'count', qTarget:3},
+  {no:'1.1.12',indi:'Hasil penyusunan dokumen ACS',                                                                  target:'3 Lap.',  satuan:'Lap.',    type:'count', qTarget:3},
+  {no:'1.1.13',indi:'Jumlah produk informasi Kolaka Monthly Weather Report yang disebarluaskan ke stakeholder',      target:'3 Dok.',  satuan:'Dok.',    type:'count', qTarget:3},
+  {no:'1.1.14',indi:'Jumlah produk informasi Monthly Aviation Weather Summary yang disebarluaskan ke stakeholder',  target:'3 Dok.',  satuan:'Dok.',    type:'count', qTarget:3, owned:true},
+  {no:'1.1.15',indi:'Jumlah penyampaian produk informasi Catatan Iklim Kolaka ke stakeholder',                      target:'1 Dok.',  satuan:'Dok.',    type:'count', qTarget:1},
+  {no:'1.1.16',indi:'Hasil rekapitulasi data parameter cuaca ekstrem',                                               target:'3 Lap.',  satuan:'Lap.',    type:'count', qTarget:3},
+  {no:'1.2.1', indi:'Jumlah pelaksanaan kegiatan sosialisasi informasi meteorologi penerbangan',                     target:'4 Lap.',  satuan:'Lap.',    type:'count', qTarget:1},
+  {no:'1.2.2', indi:'Persentase hasil survey pemahaman masyarakat pengguna informasi meteorologi penerbangan',       target:'87%',     satuan:'%',       type:'pct',   qTarget:87},
+  {no:'1.3.1', indi:'Jumlah pelaksanaan kegiatan Survey Kepuasan Masyarakat',                                       target:'2 Lap.',  satuan:'Lap.',    type:'count', qTarget:1},
+  {no:'1.3.2', indi:'Nilai IKM layanan informasi meteorologi penerbangan',                                           target:'3,8 SL',  satuan:'Skala',   type:'score', qTarget:3.8},
+];
+
+const Q_LABELS = {1:'Triwulan I',2:'Triwulan II',3:'Triwulan III',4:'Triwulan IV'};
+const M_LABELS = {
+  1:['Januari','Februari','Maret'],
+  2:['April','Mei','Juni'],
+  3:['Juli','Agustus','September'],
+  4:['Oktober','November','Desember']
+};
 
 /* ═══════════════════════════════
    MONTHLY REPORT TRACKER DATA
@@ -2008,6 +2140,379 @@ ${taskTables}
   win.document.write(html);
   win.document.close();
 }
+
+
+/* ═══════════════════════════════
+   CAPAIAN IKI — RENDER & LOGIC
+═══════════════════════════════ */
+
+function getCapKey(year, q){ return year+'-Q'+q; }
+
+function getCapValue(key, no, field){
+  if(!state.capaian) state.capaian = {};
+  if(!state.capaian[key]) state.capaian[key] = {};
+  const row = state.capaian[key][no] || {};
+  return row[field] || '';
+}
+
+function parseNum(s){
+  if(!s || s.trim()==='') return null;
+  return parseFloat(s.replace(',','.'));
+}
+
+function getStatus(iki, qVal){
+  if(qVal===null || qVal==='') return 'empty';
+  const v = parseNum(String(qVal));
+  if(v===null) return 'empty';
+  if(iki.type==='pct'){
+    const t = parseNum(iki.target.replace('%',''));
+    if(t===null) return 'empty';
+    if(v>=t) return 'achieved';
+    if(v>=t*0.8) return 'at-risk';
+    return 'missed';
+  }
+  if(iki.type==='indeks' || iki.type==='count'){
+    const t = iki.qTarget || 1;
+    if(v>=t) return 'achieved';
+    if(v>=t*0.8) return 'at-risk';
+    return 'missed';
+  }
+  if(iki.type==='score'){
+    const t = iki.qTarget || 3.8;
+    if(v>=t) return 'achieved';
+    if(v>=t*0.8) return 'at-risk';
+    return 'missed';
+  }
+  return 'empty';
+}
+
+function renderCapaian(){
+  const year = parseInt(document.getElementById('cap-year').value) || 2026;
+  const q    = parseInt(document.getElementById('cap-quarter').value) || 1;
+  const key  = getCapKey(year, q);
+  const mLabels = M_LABELS[q] || ['M1','M2','M3'];
+
+  // Update month headers
+  document.getElementById('cap-m1-hdr').textContent = mLabels[0].slice(0,3);
+  document.getElementById('cap-m2-hdr').textContent = mLabels[1].slice(0,3);
+  document.getElementById('cap-m3-hdr').textContent = mLabels[2].slice(0,3);
+
+  // Build summary
+  let achCount=0, riskCount=0, missCount=0, emptyCount=0;
+
+  // Group rows by section
+  const sections = {
+    '1.1': 'Outcome I.1 — Layanan Informasi Meteorologi Penerbangan Prima',
+    '1.2': 'Outcome I.2 — Kapasitas Pemahaman Pengguna Meningkat',
+    '1.3': 'Outcome I.3 — Kepuasan Masyarakat',
+  };
+
+  let tbody = '';
+  let lastSection = '';
+
+  LIM_IKI.forEach((iki, idx) => {
+    const section = iki.no.split('.').slice(0,2).join('.');
+    if(section !== lastSection) {
+      lastSection = section;
+      const secLabel = sections[section] || '';
+      tbody += `<tr class="cap-section-row"><td colspan="7">${secLabel}</td></tr>`;
+    }
+
+    const m1v = getCapValue(key, iki.no, 'm1');
+    const m2v = getCapValue(key, iki.no, 'm2');
+    const m3v = getCapValue(key, iki.no, 'm3');
+    const qv  = getCapValue(key, iki.no, 'q');
+
+    const status = getStatus(iki, qv || sumMonths(iki, m1v, m2v, m3v));
+    if(status==='achieved') achCount++;
+    else if(status==='at-risk') riskCount++;
+    else if(status==='missed') missCount++;
+    else emptyCount++;
+
+    const statusBadge = status!=='empty'
+      ? `<span class="cap-q-badge ${status}">${status==='achieved'?'Tercapai':status==='at-risk'?'Berisiko':'Tidak Tercapai'}</span>`
+      : `<span class="cap-q-badge empty">—</span>`;
+
+    const ownedMark = iki.owned ? ' ★' : '';
+
+    tbody += `<tr>
+      <td class="no-col">${iki.no}</td>
+      <td class="indi-col${iki.owned?' owned':''}">${iki.indi}${ownedMark}</td>
+      <td class="target-col">${iki.target}</td>
+      <td><input class="cap-input" data-key="${key}" data-no="${iki.no}" data-field="m1"
+           value="${m1v}" placeholder="—"
+           oninput="onCapInput(this)" onblur="autoFillQ(this)"></td>
+      <td><input class="cap-input" data-key="${key}" data-no="${iki.no}" data-field="m2"
+           value="${m2v}" placeholder="—"
+           oninput="onCapInput(this)" onblur="autoFillQ(this)"></td>
+      <td><input class="cap-input" data-key="${key}" data-no="${iki.no}" data-field="m3"
+           value="${m3v}" placeholder="—"
+           oninput="onCapInput(this)" onblur="autoFillQ(this)"></td>
+      <td class="cap-q-cell">
+        <input class="cap-input ${status}" data-key="${key}" data-no="${iki.no}" data-field="q"
+           value="${qv}" placeholder="—"
+           oninput="onCapInput(this); updateRowStatus(this)">
+        ${statusBadge}
+      </td>
+    </tr>`;
+  });
+
+  document.getElementById('cap-table-body').innerHTML = tbody;
+
+  // Summary block
+  const filled = achCount + riskCount + missCount;
+  const pct = LIM_IKI.length ? Math.round(filled/LIM_IKI.length*100) : 0;
+  document.getElementById('cap-summary-block').innerHTML = `
+    <div class="cap-summary">
+      <div class="cap-summary-title">${Q_LABELS[q]} ${year} — Ringkasan Pengisian</div>
+      <div class="cap-summary-stats">
+        <div class="cap-ss"><div class="n" style="color:#1D9E75">${achCount}</div><div class="l">Tercapai</div></div>
+        <div class="cap-ss"><div class="n" style="color:#854F0B">${riskCount}</div><div class="l">Berisiko</div></div>
+        <div class="cap-ss"><div class="n" style="color:#A32D2D">${missCount}</div><div class="l">Tidak Tercapai</div></div>
+      </div>
+      <div style="margin-top:8px;font-size:11px;color:var(--txt2)">
+        ${filled} dari ${LIM_IKI.length} indikator telah diisi (${pct}%)
+        ${emptyCount>0?` · ${emptyCount} belum diisi`:''}
+      </div>
+    </div>`;
+}
+
+function sumMonths(iki, m1, m2, m3){
+  // For percentage/score indicators, Q = latest non-empty value
+  if(iki.type==='pct' || iki.type==='score'){
+    return m3||m2||m1||'';
+  }
+  // For count/index, Q = sum of months
+  const v1=parseNum(m1)||0, v2=parseNum(m2)||0, v3=parseNum(m3)||0;
+  if(!m1&&!m2&&!m3) return '';
+  return String(v1+v2+v3);
+}
+
+function onCapInput(el){
+  const {key, no, field} = el.dataset;
+  if(!state.capaian) state.capaian = {};
+  if(!state.capaian[key]) state.capaian[key] = {};
+  if(!state.capaian[key][no]) state.capaian[key][no] = {};
+  state.capaian[key][no][field] = el.value;
+  // Live status update on Q field
+  if(field==='q') updateRowStatus(el);
+}
+
+function autoFillQ(el){
+  // When leaving a monthly cell, auto-calculate Q if Q is empty
+  const {key, no} = el.dataset;
+  const iki = LIM_IKI.find(i=>i.no===no);
+  if(!iki) return;
+  const m1 = getCapValue(key,no,'m1');
+  const m2 = getCapValue(key,no,'m2');
+  const m3 = getCapValue(key,no,'m3');
+  const qEl = el.closest('tr').querySelector('[data-field="q"]');
+  if(qEl && !qEl.value.trim()){
+    const auto = sumMonths(iki,m1,m2,m3);
+    if(auto){
+      qEl.value = auto;
+      onCapInput(qEl);
+      updateRowStatus(qEl);
+    }
+  }
+}
+
+function updateRowStatus(qEl){
+  const {key, no} = qEl.dataset;
+  const iki = LIM_IKI.find(i=>i.no===no);
+  if(!iki) return;
+  const status = getStatus(iki, qEl.value);
+  qEl.className = 'cap-input '+(status!=='empty'?status:'');
+  const badgeEl = qEl.closest('td').querySelector('.cap-q-badge');
+  if(badgeEl){
+    badgeEl.className = 'cap-q-badge '+(status||'empty');
+    badgeEl.textContent = status==='achieved'?'Tercapai':status==='at-risk'?'Berisiko':status==='missed'?'Tidak Tercapai':'—';
+  }
+}
+
+function saveCapaian(){
+  // Collect all current input values
+  document.querySelectorAll('.cap-input').forEach(el=>{
+    if(el.dataset.key) onCapInput(el);
+  });
+  saveState();
+  showToast('✓ Capaian disimpan');
+}
+
+/* ═══════════════════════════════
+   PRINT LAPORAN CAPAIAN
+═══════════════════════════════ */
+function printCapaian(){
+  saveCapaian();
+  const year   = parseInt(document.getElementById('cap-year').value)    || 2026;
+  const q      = parseInt(document.getElementById('cap-quarter').value) || 1;
+  const key    = getCapKey(year, q);
+  const qLabel = Q_LABELS[q];
+  const mLbls  = M_LABELS[q] || ['M1','M2','M3'];
+  const qShort = 'Q'+q;
+
+  const prof = state.profile || {};
+  const nama = prof.nama || 'Muhammad Subhan Al Zibrah, S.Tr.Met.';
+  const nip  = prof.nip  || '200009262023021004';
+
+  const wita   = getWITA();
+  const MONTHS = ['','Januari','Februari','Maret','April','Mei','Juni',
+                  'Juli','Agustus','September','Oktober','November','Desember'];
+  const dateStr = wita.getDate() + ' ' + MONTHS[wita.getMonth()+1] + ' ' + wita.getFullYear();
+
+  /* ── Build table rows ── */
+  let rows = '';
+  let altIdx = 0;
+  LIM_IKI.forEach((iki) => {
+    const m1 = getCapValue(key, iki.no, 'm1');
+    const m2 = getCapValue(key, iki.no, 'm2');
+    const m3 = getCapValue(key, iki.no, 'm3');
+    const qv = getCapValue(key, iki.no, 'q') || sumMonths(iki, m1, m2, m3);
+    const bg = altIdx % 2 === 0 ? '#FFFFFF' : '#F2F2F2';
+    altIdx++;
+    rows += `<tr style="background:${bg}">
+      <td style="text-align:center;padding:3px 5px;font-size:10pt">${iki.no}</td>
+      <td style="padding:3px 6px;font-size:10pt">${iki.indi}</td>
+      <td style="text-align:center;padding:3px 5px;font-size:10pt">${iki.target}</td>
+      <td style="text-align:center;padding:3px 5px;font-size:10pt">${m1 || ''}</td>
+      <td style="text-align:center;padding:3px 5px;font-size:10pt">${m2 || ''}</td>
+      <td style="text-align:center;padding:3px 5px;font-size:10pt">${m3 || ''}</td>
+      <td style="text-align:center;padding:3px 5px;font-size:10pt">${qv  || ''}</td>
+    </tr>`;
+  });
+
+  const docHtml = `<!DOCTYPE html>
+<html lang="id"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Laporan Capaian IKI LIM — ${qLabel} ${year}</title>
+<style>
+@page { size: A4 portrait; margin: 2.3cm 2cm 2.5cm 3cm; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 11pt;
+  color: #000;
+  background: #fff;
+  padding: 2.3cm 2cm 2.5cm 3cm;
+}
+h1 {
+  font-size: 12pt;
+  font-weight: bold;
+  text-align: center;
+  text-transform: uppercase;
+  line-height: 1.4;
+  margin-bottom: 6pt;
+}
+.subtitle {
+  font-size: 11pt;
+  font-weight: bold;
+  text-align: center;
+  text-transform: uppercase;
+  margin-bottom: 16pt;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20pt;
+  font-family: 'Times New Roman', Times, serif;
+}
+th, td {
+  border: 1px solid #000;
+  vertical-align: middle;
+  line-height: 1.3;
+}
+th {
+  background-color: #9CC2E5;
+  font-weight: bold;
+  text-align: center;
+  font-size: 10pt;
+  padding: 4px 5px;
+}
+td { font-size: 10pt; }
+.ttd-block {
+  margin-top: 12pt;
+  text-align: right;
+  width: 100%;
+}
+.ttd-place { margin-bottom: 2pt; }
+.ttd-role  { margin-bottom: 60pt; }
+.ttd-name  { text-decoration: underline; font-weight: bold; }
+.ttd-nip   { margin-top: 2pt; }
+
+/* Screen-only print button */
+@media screen {
+  body { max-width: 210mm; margin: 0 auto; padding: 20mm 15mm 25mm 25mm; box-shadow: 0 0 20px rgba(0,0,0,0.15); }
+  .pbar { position: fixed; top: 12px; right: 12px; display: flex; gap: 8px; z-index: 99; }
+  .pbar button { border: none; border-radius: 7px; padding: 9px 18px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: sans-serif; }
+  .bp { background: #2E75B6; color: #fff; }
+  .bc { background: #eee; color: #555; }
+}
+@media print {
+  body { padding: 0; box-shadow: none; }
+  .pbar { display: none !important; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+</style></head><body>
+
+<div class="pbar">
+  <button class="bp" onclick="window.print()">&#128424; Cetak / Simpan PDF</button>
+  <button class="bc" onclick="window.close()">&#x2715; Tutup</button>
+</div>
+
+<h1>LAPORAN EVALUASI CAPAIAN INDIKATOR KINERJA INDIVIDU<br>
+TIM LAYANAN INFORMASI METEOROLOGI</h1>
+<div class="subtitle">${qLabel.toUpperCase()} TAHUN ${year}</div>
+
+<table>
+  <colgroup>
+    <col style="width:7%">
+    <col style="width:43%">
+    <col style="width:9%">
+    <col style="width:9%">
+    <col style="width:9%">
+    <col style="width:9%">
+    <col style="width:14%">
+  </colgroup>
+  <thead>
+    <tr>
+      <th rowspan="2">INDIKATOR<br>KINERJA</th>
+      <th rowspan="2">INDIKATOR KINERJA</th>
+      <th rowspan="2">TARGET</th>
+      <th colspan="4">CAPAIAN</th>
+    </tr>
+    <tr>
+      <th>${mLbls[0].toUpperCase().slice(0,3)}</th>
+      <th>${mLbls[1].toUpperCase().slice(0,3)}</th>
+      <th>${mLbls[2].toUpperCase().slice(0,3)}</th>
+      <th>${qShort}</th>
+    </tr>
+  </thead>
+  <tbody>
+    ${rows}
+  </tbody>
+</table>
+
+<div class="ttd-block">
+  <div class="ttd-place">Kolaka, &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ${year}</div>
+  <div class="ttd-role">Ketua Tim,</div>
+  <div class="ttd-name">${nama}</div>
+  <div class="ttd-nip">NIP. ${nip}</div>
+</div>
+
+<script>
+  if (/Mobi|Android/i.test(navigator.userAgent)) {
+    setTimeout(function(){ if(confirm('Cetak dokumen ini?')) window.print(); }, 500);
+  }
+<\/script>
+</body></html>`;
+
+  const win = window.open('', '_blank');
+  if(!win){ showToast('Izinkan pop-up untuk mencetak'); return; }
+  win.document.write(docHtml);
+  win.document.close();
+}
+
 
 /* ═══════════════════════════════
    EXPORT / IMPORT
