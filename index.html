@@ -909,7 +909,6 @@ function renderDashboard(){
   const flagged = TASKS.filter(it=>state.items[it.id]?.flagged).length;
   const pct = Math.round(done/all*100);
 
-  const TASKS = getTasks();
   document.getElementById('d-period-label').textContent = state.period || 'Periode Aktif';
   document.getElementById('d-period-sub').textContent = state.periodNote
     ? 'BMKG · WAWP Kolaka · '+state.periodNote
