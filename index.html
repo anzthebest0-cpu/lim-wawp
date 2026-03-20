@@ -55,7 +55,7 @@ html,body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:
 button{font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;}
 
 /* ── SHELL ──────────────────── */
-#app{max-width:640px;margin:0 auto;padding-bottom:76px;}
+#app{max-width:640px;margin:0 auto;padding-bottom:72px;}
 
 /* ── HEADER ─────────────────── */
 .app-bar{
@@ -79,14 +79,16 @@ button{font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;}
   display:flex;max-width:640px;margin:0 auto;
 }
 .tab-btn{
-  flex:1;border:none;background:none;padding:6px 0 8px;
+  flex:1;border:none;background:none;padding:5px 0 6px;
   display:flex;flex-direction:column;align-items:center;gap:1px;
-  color:var(--txt3);font-size:9px;font-weight:500;
+  color:var(--txt3);font-size:8.5px;font-weight:500;
   transition:color 0.15s;font-family:'Plus Jakarta Sans',sans-serif;
+  min-width:0;
 }
-.tab-btn svg{width:20px;height:20px;}
+.tab-btn svg{width:19px;height:19px;flex-shrink:0;}
 .tab-btn.active{color:var(--teal);}
-.tab-indicator{width:4px;height:4px;border-radius:2px;background:var(--teal);margin-top:2px;opacity:0;transition:opacity 0.2s;}
+.tab-indicator{width:4px;height:4px;border-radius:2px;background:var(--teal);margin-top:1px;opacity:0;transition:opacity 0.2s;}
+.tab-btn span{font-size:8.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;display:block;}
 .tab-btn.active .tab-indicator{opacity:1;}
 
 /* ── VIEWS ───────────────────── */
@@ -433,7 +435,7 @@ button{font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;}
 
 /* ── TOAST ────────────────────── */
 .toast{
-  position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(20px);
+  position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);
   background:var(--txt);color:var(--bg);padding:10px 18px;
   border-radius:24px;font-size:13px;font-weight:500;
   opacity:0;transition:all 0.25s;z-index:600;white-space:nowrap;pointer-events:none;
@@ -442,7 +444,7 @@ button{font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;}
 
 /* ── PWA INSTALL BANNER ───────── */
 .install-banner{
-  display:none;position:fixed;bottom:76px;left:50%;
+  display:none;position:fixed;bottom:72px;left:50%;
   transform:translateX(-50%);z-index:400;
   background:var(--teal);color:white;
   border-radius:24px;padding:12px 20px;
@@ -464,8 +466,8 @@ button{font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;}
 }
 @media print{.install-banner{display:none!important;}}
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js" defer></script>
 </head>
 <body>
 
@@ -2057,8 +2059,6 @@ function openPrintWindow(){
     .btn-c{background:#F0EFE9;color:#5A5955}
   }
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
 <div class="print-btn-bar no-print" style="display:flex">
@@ -2556,45 +2556,41 @@ function downloadPdfJs(){
 function _buildJsPdf(year, q, key, qLabel, mLbls, qShort, namaTtd, nip, reportDate){
   const { jsPDF } = window.jspdf;
 
-  // A4 portrait, mm units
   const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
 
   const PW = 210, PH = 297;
-  const ML = 25, MR = 20, MT_content = 10;
-  const CW = PW - ML - MR; // 165mm
+  // Tighter margins → wider content → indicator column wider → less text wrap → rows shorter
+  const ML = 20, MR = 15;
+  const CW = PW - ML - MR; // 175mm
 
-  // ── KOP ──────────────────────────────────────────────────────────────
-  // KOP image: 1200x180px → at A4 width 210mm → height = 210*180/1200 = 31.5mm
-  const kopH = PW * 180 / 1200; // ≈ 31.5mm
+  // ── KOP (full bleed) ──────────────────────────────────────────────────
+  // KOP image ratio: 180px / 1200px = 0.15 → height = 210 * 0.15 = 31.5mm
+  const kopH = PW * 180 / 1200;
   doc.addImage(KOP_IMG, 'JPEG', 0, 0, PW, kopH);
-  // Rule under KOP
   doc.setDrawColor(0);
   doc.setLineWidth(0.5);
   doc.line(0, kopH, PW, kopH);
 
-  let y = kopH + 8; // start of content
+  let y = kopH + 5;
 
-  // ── TITLES ───────────────────────────────────────────────────────────
+  // ── TITLES ────────────────────────────────────────────────────────────
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(12);
-  const titleLines = [
+  doc.setFontSize(11);
+  [
     'LAPORAN EVALUASI CAPAIAN INDIKATOR KINERJA INDIVIDU',
     'TIM LAYANAN INFORMASI METEOROLOGI',
     qLabel.toUpperCase() + ' TAHUN ' + year,
-  ];
-  titleLines.forEach(function(line){
-    doc.text(line, PW/2, y, {align:'center'});
-    y += 6;
+  ].forEach(function(line){
+    doc.text(line, PW/2, y, { align:'center' });
+    y += 5.5;
   });
-  y += 3;
+  y += 2;
 
-  // ── TABLE ─────────────────────────────────────────────────────────────
-  // Col widths in mm (proportional, total = CW = 165mm)
-  // 8.3, 51.6, 10.4, 7.4, 7.4, 7.4, 7.4 of CW
-  const colW = [8.3,51.6,10.4,7.4,7.4,7.4,7.4].map(function(p){ return CW*p/100; });
+  // ── TABLE ──────────────────────────────────────────────────────────────
+  // Proportions from DOCX: 8.3 | 51.6 | 10.4 | 7.4 | 7.4 | 7.4 | 7.4
+  const colW = [8.3, 51.6, 10.4, 7.4, 7.4, 7.4, 7.4].map(function(p){ return CW * p / 100; });
 
-  // Build rows
-  const tableBody = LIM_IKI.map(function(iki, idx){
+  const tableBody = LIM_IKI.map(function(iki){
     const m1 = getCapValue(key, iki.no, 'm1');
     const m2 = getCapValue(key, iki.no, 'm2');
     const m3 = getCapValue(key, iki.no, 'm3');
@@ -2607,18 +2603,21 @@ function _buildJsPdf(year, q, key, qLabel, mLbls, qShort, namaTtd, nip, reportDa
     margin: { left: ML, right: MR },
     tableWidth: CW,
     columnStyles: {
-      0: { cellWidth: colW[0], halign:'center', fontSize:8.5 },
-      1: { cellWidth: colW[1], halign:'left',   fontSize:9   },
-      2: { cellWidth: colW[2], halign:'center', fontSize:9   },
-      3: { cellWidth: colW[3], halign:'center', fontSize:9   },
-      4: { cellWidth: colW[4], halign:'center', fontSize:9   },
-      5: { cellWidth: colW[5], halign:'center', fontSize:9   },
-      6: { cellWidth: colW[6], halign:'center', fontSize:9, fontStyle:'bold' },
+      0: { cellWidth: colW[0], halign:'center', fontSize:8 },
+      1: { cellWidth: colW[1], halign:'left',   fontSize:8 },
+      2: { cellWidth: colW[2], halign:'center', fontSize:8 },
+      3: { cellWidth: colW[3], halign:'center', fontSize:8 },
+      4: { cellWidth: colW[4], halign:'center', fontSize:8 },
+      5: { cellWidth: colW[5], halign:'center', fontSize:8 },
+      6: { cellWidth: colW[6], halign:'center', fontSize:8, fontStyle:'bold' },
     },
     head: [[
-      { content:'INDIKATOR KINERJA', colSpan:2, rowSpan:2, styles:{halign:'center', valign:'middle', fontStyle:'bold', fontSize:9} },
-      { content:'TARGET',            rowSpan:2, styles:{halign:'center', valign:'middle', fontStyle:'bold', fontSize:9} },
-      { content:'CAPAIAN',           colSpan:4, styles:{halign:'center', fontStyle:'bold', fontSize:9} },
+      { content:'INDIKATOR KINERJA', colSpan:2, rowSpan:2,
+        styles:{ halign:'center', valign:'middle', fontStyle:'bold', fontSize:8 } },
+      { content:'TARGET', rowSpan:2,
+        styles:{ halign:'center', valign:'middle', fontStyle:'bold', fontSize:8 } },
+      { content:'CAPAIAN', colSpan:4,
+        styles:{ halign:'center', fontStyle:'bold', fontSize:8 } },
     ],[
       mLbls[0].slice(0,3).toUpperCase(),
       mLbls[1].slice(0,3).toUpperCase(),
@@ -2627,75 +2626,58 @@ function _buildJsPdf(year, q, key, qLabel, mLbls, qShort, namaTtd, nip, reportDa
     ]],
     body: tableBody,
     headStyles: {
-      fillColor: [156, 194, 229],  // #9CC2E5
-      textColor: [0,0,0],
+      fillColor: [156, 194, 229],
+      textColor: [0, 0, 0],
       fontStyle: 'bold',
-      fontSize: 9,
+      fontSize: 8,
       lineWidth: 0.25,
-      lineColor: [0,0,0],
+      lineColor: [0, 0, 0],
       valign: 'middle',
+      minCellHeight: 5,
     },
     bodyStyles: {
-      fontSize: 9,
-      textColor: [0,0,0],
+      fontSize: 8,
+      textColor: [0, 0, 0],
       lineWidth: 0.25,
-      lineColor: [0,0,0],
+      lineColor: [0, 0, 0],
       valign: 'middle',
-      minCellHeight: 6,
+      minCellHeight: 4,
     },
     alternateRowStyles: {
       fillColor: [242, 242, 242],
     },
     styles: {
-      cellPadding: { top:1.8, bottom:1.8, left:1.5, right:1.5 },
+      cellPadding: { top: 1.0, bottom: 1.0, left: 1.2, right: 1.2 },
       overflow: 'linebreak',
       font: 'helvetica',
     },
-    didDrawPage: function(data){
-      // Rule under KOP on every page except first (first already drawn)
-      if(doc.internal.getCurrentPageInfo().pageNumber > 1){
-        // No KOP on pages 2+ — just a small top margin rule
-        doc.setDrawColor(200);
-        doc.setLineWidth(0.2);
-        doc.line(ML, 8, PW-MR, 8);
-      }
-    },
   });
 
-  // ── SIGNATURE ────────────────────────────────────────────────────────
-  let sigY = doc.lastAutoTable.finalY + 6;
+  // ── SIGNATURE ─────────────────────────────────────────────────────────
+  // 10mm gap between last table row and signature block
+  const sigY0 = doc.lastAutoTable.finalY + 10;
+  const sigX  = PW - MR - 62;
 
-  // Check if signature fits on current page, if not add page
-  if(sigY + 40 > PH - 15){
-    doc.addPage();
-    sigY = 20;
-  }
-
-  // Right-aligned block, 65mm wide from right edge
-  const sigX = PW - MR - 65;
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(11);
-  doc.text('Kolaka,  ' + reportDate, sigX, sigY);
-  doc.text('Ketua Tim,', sigX, sigY + 5.5);
-
-  // Space for signature
-  sigY += 5.5 + 22;
-
-  // Underlined name
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(11);
-  const nameW = doc.getTextWidth(namaTtd);
-  doc.text(namaTtd, sigX, sigY);
-  doc.setLineWidth(0.4);
-  doc.line(sigX, sigY + 0.8, sigX + nameW, sigY + 0.8);
-
-  // NIP
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(10);
-  doc.text('NIP. ' + nip, sigX, sigY + 5.5);
+  doc.text('Kolaka,  ' + reportDate, sigX, sigY0);
+  doc.text('Ketua Tim,', sigX, sigY0 + 5);
 
-  // ── SAVE ─────────────────────────────────────────────────────────────
-  const ql = {1:'Q1',2:'Q2',3:'Q3',4:'Q4'}[q]||'Q';
+  // 30mm space for TTE (Tanda Tangan Elektronik)
+  const nameY = sigY0 + 5 + 30;
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10);
+  const nameW = doc.getTextWidth(namaTtd);
+  doc.text(namaTtd, sigX, nameY);
+  doc.setLineWidth(0.35);
+  doc.line(sigX, nameY + 0.7, sigX + nameW, nameY + 0.7);
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9.5);
+  doc.text('NIP. ' + nip, sigX, nameY + 5);
+
+  // ── SAVE ──────────────────────────────────────────────────────────────
+  const ql = { 1:'Q1', 2:'Q2', 3:'Q3', 4:'Q4' }[q] || 'Q';
   doc.save('LIM_Capaian_' + ql + '_' + year + '.pdf');
 }
 
