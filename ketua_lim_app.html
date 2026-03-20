@@ -1,0 +1,2015 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Ketua Tim LIM — WAWP 2026</title>
+<meta name="theme-color" content="#0F6E56">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Tim LIM">
+<meta name="description" content="Aplikasi manajemen tugas Ketua Tim Unit LIM — BMKG WAWP Kolaka">
+<link rel="manifest" id="pwa-manifest">
+<link rel="apple-touch-icon" id="apple-icon">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --teal:        #0F6E56;
+  --teal-mid:    #1D9E75;
+  --teal-light:  #E1F5EE;
+  --teal-pale:   #F0FAF6;
+  --purple:      #534AB7;
+  --purple-light:#EEEDFE;
+  --amber:       #854F0B;
+  --amber-light: #FEF3CD;
+  --blue:        #185FA5;
+  --blue-light:  #E6F1FB;
+  --red:         #A32D2D;
+  --red-light:   #FCEBEB;
+  --red-mid:     #E24B4A;
+  --txt:         #1C1C1A;
+  --txt2:        #5A5955;
+  --txt3:        #9A9890;
+  --bg:          #FFFFFF;
+  --bg2:         #F7F6F2;
+  --bg3:         #F0EFE9;
+  --border:      rgba(0,0,0,0.09);
+  --border2:     rgba(0,0,0,0.15);
+  --r:           12px;
+  --r-sm:        8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --txt:#E8E5DC; --txt2:#9A9890; --txt3:#6A6860;
+    --bg:#18181A; --bg2:#222224; --bg3:#2A2A2C;
+    --border:rgba(255,255,255,0.08); --border2:rgba(255,255,255,0.15);
+    --teal-light:#0A2E22; --teal-pale:#081F17;
+    --purple-light:#1A1840; --amber-light:#2A1E08;
+    --blue-light:#0A1E35; --red-light:#2A0E0E;
+  }
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--txt);font-size:14px;line-height:1.5;min-height:100vh;-webkit-font-smoothing:antialiased;}
+button{font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;}
+
+/* ── SHELL ──────────────────── */
+#app{max-width:640px;margin:0 auto;padding-bottom:76px;}
+
+/* ── HEADER ─────────────────── */
+.app-bar{
+  position:sticky;top:0;z-index:200;
+  background:var(--bg);border-bottom:0.5px solid var(--border);
+  padding:12px 16px 10px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.app-bar-left h1{font-size:15px;font-weight:700;letter-spacing:-0.2px;}
+.app-bar-left p{font-size:11px;color:var(--txt3);margin-top:1px;font-family:'DM Mono',monospace;}
+.app-bar-right{display:flex;gap:8px;align-items:center;}
+.period-chip{
+  font-size:11px;font-weight:600;background:var(--teal-light);color:var(--teal);
+  padding:4px 10px;border-radius:20px;border:none;font-family:'Plus Jakarta Sans',sans-serif;
+}
+
+/* ── BOTTOM NAV ──────────────── */
+.tab-nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:300;
+  background:var(--bg);border-top:0.5px solid var(--border);
+  display:flex;max-width:640px;margin:0 auto;
+}
+.tab-btn{
+  flex:1;border:none;background:none;padding:6px 0 8px;
+  display:flex;flex-direction:column;align-items:center;gap:1px;
+  color:var(--txt3);font-size:9.5px;font-weight:500;
+  transition:color 0.15s;font-family:'Plus Jakarta Sans',sans-serif;
+}
+.tab-btn svg{width:20px;height:20px;}
+.tab-btn.active{color:var(--teal);}
+.tab-indicator{width:4px;height:4px;border-radius:2px;background:var(--teal);margin-top:2px;opacity:0;transition:opacity 0.2s;}
+.tab-btn.active .tab-indicator{opacity:1;}
+
+/* ── VIEWS ───────────────────── */
+.view{display:none;padding:16px;}
+.view.active{display:block;}
+
+/* ── DASHBOARD ───────────────── */
+.dash-hero{
+  background:linear-gradient(135deg,var(--teal) 0%,var(--teal-mid) 100%);
+  border-radius:var(--r);padding:18px 18px 16px;margin-bottom:14px;color:white;
+}
+.dash-hero-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;}
+.dash-hero h2{font-size:22px;font-weight:700;letter-spacing:-0.5px;}
+.dash-hero p{font-size:12px;opacity:0.85;margin-top:2px;}
+.overall-ring{text-align:right;}
+.overall-ring .pct{font-size:28px;font-weight:700;font-family:'DM Mono',monospace;}
+.overall-ring .lbl{font-size:11px;opacity:0.8;}
+.dash-prog-bar{height:6px;background:rgba(255,255,255,0.25);border-radius:3px;overflow:hidden;}
+.dash-prog-fill{height:100%;border-radius:3px;background:white;transition:width 0.5s ease;}
+
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.stat-card{background:var(--bg2);border-radius:var(--r-sm);padding:12px 14px;}
+.stat-card .sn{font-size:24px;font-weight:700;font-family:'DM Mono',monospace;color:var(--txt);}
+.stat-card .sl{font-size:11px;color:var(--txt2);margin-top:1px;}
+.stat-card.green .sn{color:var(--teal);}
+.stat-card.purple .sn{color:var(--purple);}
+.stat-card.red .sn{color:var(--red-mid);}
+
+.section-prog-list{margin-bottom:14px;}
+.spl-title{font-size:12px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;}
+.spl-item{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.spl-label{font-size:12px;color:var(--txt2);width:80px;flex-shrink:0;}
+.spl-bar{flex:1;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;}
+.spl-fill{height:100%;border-radius:3px;background:var(--teal-mid);transition:width 0.4s ease;}
+.spl-pct{font-size:11px;color:var(--txt3);width:30px;text-align:right;font-family:'DM Mono',monospace;}
+
+.flagged-alert{
+  background:var(--red-light);border:0.5px solid #F09595;
+  border-radius:var(--r-sm);padding:10px 12px;margin-bottom:14px;
+  display:flex;align-items:flex-start;gap:8px;
+}
+.flagged-alert svg{flex-shrink:0;margin-top:1px;color:#A32D2D;}
+.flagged-alert-text{font-size:12px;color:var(--red);}
+.flagged-alert-text strong{font-weight:600;}
+
+/* ── CHECKLIST ───────────────── */
+.filter-row{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:12px;scrollbar-width:none;}
+.filter-row::-webkit-scrollbar{display:none;}
+.filter-chip{
+  flex-shrink:0;border:0.5px solid var(--border2);border-radius:20px;
+  padding:5px 12px;font-size:12px;font-weight:500;background:var(--bg);
+  color:var(--txt2);white-space:nowrap;transition:all 0.15s;
+}
+.filter-chip.active{background:var(--teal);border-color:var(--teal);color:white;}
+
+.cadence-section{margin-bottom:14px;border:0.5px solid var(--border);border-radius:var(--r);overflow:hidden;}
+.cadence-header{
+  display:flex;align-items:center;gap:8px;padding:10px 14px;
+  background:var(--bg2);border-bottom:0.5px solid var(--border);
+}
+.cadence-title{font-size:13px;font-weight:600;}
+.cadence-meta{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.cadence-cnt{font-size:12px;color:var(--txt3);font-family:'DM Mono',monospace;}
+.cadence-mini-bar{width:50px;height:3px;background:var(--bg3);border-radius:2px;overflow:hidden;}
+.cadence-mini-fill{height:100%;border-radius:2px;background:var(--teal-mid);transition:width 0.3s;}
+
+.badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:0.3px;text-transform:uppercase;}
+.b-harian{background:var(--teal-light);color:var(--teal);}
+.b-mingguan{background:var(--blue-light);color:var(--blue);}
+.b-bulanan{background:var(--purple-light);color:var(--purple);}
+.b-triwulanan{background:var(--amber-light);color:var(--amber);}
+.b-tahunan{background:#FEE2D0;color:#8A3010;}
+
+.item{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;border-bottom:0.5px solid var(--border);transition:background 0.1s;position:relative;}
+.item:last-child{border-bottom:none;}
+.item.flagged{border-left:3px solid var(--red-mid);padding-left:11px;}
+.item.done .ibody{opacity:0.38;}
+.item.done .ilabel{text-decoration:line-through;text-decoration-color:var(--txt3);}
+
+.cb{
+  width:20px;height:20px;min-width:20px;border:1.5px solid var(--border2);
+  border-radius:5px;display:flex;align-items:center;justify-content:center;
+  transition:all 0.15s;cursor:pointer;margin-top:1px;flex-shrink:0;
+}
+.cb.checked{background:var(--teal);border-color:var(--teal);}
+.cb svg{display:none;}
+.cb.checked svg{display:block;}
+
+.ibody{flex:1;min-width:0;}
+.ilabel{font-size:13px;font-weight:500;line-height:1.45;color:var(--txt);}
+.isub{font-size:12px;color:var(--txt2);margin-top:3px;line-height:1.4;}
+.pills{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;}
+.pill{font-size:10px;font-weight:600;padding:2px 7px;border-radius:8px;letter-spacing:0.2px;}
+.p-own{background:var(--purple-light);color:var(--purple);}
+.p-sup{background:var(--blue-light);color:var(--blue);}
+.p-collab{background:var(--amber-light);color:var(--amber);}
+
+.iactions{display:flex;flex-direction:column;gap:4px;flex-shrink:0;}
+.icon-btn{border:none;background:none;padding:3px;border-radius:4px;transition:all 0.15s;display:flex;align-items:center;justify-content:center;}
+.icon-btn svg{width:16px;height:16px;color:var(--txt3);}
+.icon-btn:hover svg{color:var(--txt);}
+.icon-btn.flagged svg{color:var(--red-mid);}
+.icon-btn.noted svg{color:var(--teal);}
+
+.note-wrap{display:none;padding:6px 14px 12px 44px;border-bottom:0.5px solid var(--border);background:var(--bg2);}
+.note-wrap.open{display:block;}
+.note-wrap textarea{
+  width:100%;border:0.5px solid var(--border2);border-radius:6px;
+  padding:8px 10px;font-size:12px;font-family:'Plus Jakarta Sans',sans-serif;
+  background:var(--bg);color:var(--txt);resize:none;min-height:56px;
+  line-height:1.4;
+}
+.note-wrap textarea:focus{outline:none;border-color:var(--teal);}
+.note-wrap textarea::placeholder{color:var(--txt3);}
+
+/* ── ARCHIVE ──────────────────── */
+.arch-actions{display:flex;gap:10px;margin-bottom:14px;}
+.btn-arch{
+  flex:1;background:var(--teal);color:white;border:none;
+  border-radius:var(--r-sm);padding:12px;font-size:13px;font-weight:600;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.btn-arch svg{width:16px;height:16px;}
+.sync-row{display:flex;gap:8px;margin-bottom:10px;}
+.btn-sync{
+  flex:1;border:0.5px solid var(--border2);background:var(--bg2);
+  color:var(--txt2);border-radius:var(--r-sm);padding:10px 8px;
+  font-size:12px;font-weight:600;display:flex;align-items:center;
+  justify-content:center;gap:6px;transition:all 0.15s;
+}
+.btn-sync:hover{background:var(--bg3);}
+.btn-sync svg{width:15px;height:15px;flex-shrink:0;}
+.btn-sync.import{color:var(--blue);border-color:#85B7EB;}
+.btn-sync.export{color:var(--teal);border-color:#5DCAA5;}
+.sync-info{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--r-sm);padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--txt2);line-height:1.6;}
+.sync-info strong{color:var(--txt);font-weight:600;}
+.sync-info .sync-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--teal-mid);margin-right:6px;vertical-align:middle;}
+.sync-info .sync-dot.warn{background:var(--amber);}
+#inp-file-import{display:none;}
+
+.arch-item{border:0.5px solid var(--border);border-radius:var(--r);margin-bottom:12px;overflow:hidden;}
+.arch-item-header{display:flex;align-items:flex-start;justify-content:space-between;padding:12px 14px;background:var(--bg2);cursor:pointer;}
+.arch-item-left{}
+.arch-item-title{font-size:14px;font-weight:600;}
+.arch-item-date{font-size:11px;color:var(--txt3);margin-top:2px;font-family:'DM Mono',monospace;}
+.arch-prog-pill{
+  font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;
+  font-family:'DM Mono',monospace;
+}
+.arch-body{display:none;padding:12px 14px;}
+.arch-body.open{display:block;}
+.arch-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+.arch-stat{text-align:center;background:var(--bg3);border-radius:var(--r-sm);padding:8px;}
+.arch-stat .n{font-size:18px;font-weight:700;font-family:'DM Mono',monospace;}
+.arch-stat .l{font-size:10px;color:var(--txt2);margin-top:1px;}
+.arch-bar-row{margin-bottom:10px;}
+.arch-bar-label{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;}
+.arch-bar-label span:last-child{color:var(--txt3);font-family:'DM Mono',monospace;}
+.arch-prog-bg{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;}
+.arch-prog-fill{height:100%;border-radius:3px;background:var(--teal-mid);}
+.arch-notes{font-size:12px;color:var(--txt2);background:var(--teal-pale);border-radius:6px;padding:8px 10px;margin-bottom:10px;}
+.arch-del{border:0.5px solid #F09595;background:none;color:var(--red);border-radius:6px;padding:6px 12px;font-size:12px;width:100%;}
+
+/* ── MODAL ────────────────────── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:500;align-items:flex-end;justify-content:center;}
+.overlay.open{display:flex;}
+.modal{background:var(--bg);border-radius:var(--r) var(--r) 0 0;padding:20px 20px 36px;width:100%;max-width:640px;}
+.modal h3{font-size:16px;font-weight:700;margin-bottom:4px;}
+.modal p{font-size:13px;color:var(--txt2);margin-bottom:16px;}
+.modal label{display:block;font-size:12px;font-weight:600;color:var(--txt2);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.4px;}
+.modal input,.modal select,.modal textarea{
+  width:100%;border:0.5px solid var(--border2);border-radius:8px;
+  padding:10px 12px;font-size:14px;background:var(--bg);
+  color:var(--txt);margin-bottom:12px;font-family:'Plus Jakarta Sans',sans-serif;
+}
+.modal input:focus,.modal select:focus,.modal textarea:focus{outline:none;border-color:var(--teal);}
+.modal-btns{display:flex;gap:10px;margin-top:4px;}
+.btn-primary{flex:1;background:var(--teal);color:white;border:none;border-radius:8px;padding:13px;font-size:14px;font-weight:600;}
+.btn-secondary{background:var(--bg2);color:var(--txt2);border:0.5px solid var(--border2);border-radius:8px;padding:13px 18px;font-size:14px;}
+
+/* ── PRINT ────────────────────── */
+#view-print{padding:0;}
+.print-toolbar{display:flex;gap:10px;padding:16px 16px 0;}
+.btn-print{flex:1;background:var(--teal);color:white;border:none;border-radius:var(--r-sm);padding:13px;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-print svg{width:18px;height:18px;}
+.btn-share{background:var(--bg2);border:0.5px solid var(--border2);color:var(--txt2);border-radius:var(--r-sm);padding:13px 16px;font-size:14px;}
+.print-preview{margin:14px;border:0.5px solid var(--border);border-radius:var(--r);overflow:hidden;background:var(--bg);}
+
+/* Print document styles */
+.doc-kop{
+  display:flex;align-items:center;gap:16px;
+  padding:16px 20px;border-bottom:3px solid var(--teal);
+}
+.doc-kop-logo{
+  width:60px;height:60px;border-radius:50%;
+  background:var(--teal);display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.doc-kop-logo svg{width:32px;height:32px;color:white;}
+.doc-kop-text{}
+.doc-kop-text .org{font-size:15px;font-weight:700;color:var(--teal);letter-spacing:-0.3px;}
+.doc-kop-text .sub-org{font-size:11px;color:var(--txt2);margin-top:1px;}
+.doc-kop-text .addr{font-size:10px;color:var(--txt3);margin-top:2px;}
+
+.doc-title-block{padding:14px 20px 10px;text-align:center;border-bottom:0.5px solid var(--border);}
+.doc-title-block .doc-title{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--txt);}
+.doc-title-block .doc-sub{font-size:11px;color:var(--txt2);margin-top:3px;}
+.doc-nomor{font-size:11px;color:var(--txt3);margin-top:2px;font-family:'DM Mono',monospace;}
+
+.doc-meta{padding:12px 20px;border-bottom:0.5px solid var(--border);}
+.doc-meta table{width:100%;font-size:12px;border-collapse:collapse;}
+.doc-meta td{padding:3px 0;}
+.doc-meta td:first-child{color:var(--txt2);width:140px;font-weight:500;}
+.doc-meta td:nth-child(2){width:14px;color:var(--txt2);}
+
+.doc-summary{padding:12px 20px;border-bottom:0.5px solid var(--border);}
+.doc-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--teal);margin-bottom:8px;}
+.doc-summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;}
+.doc-sum-cell{background:var(--bg2);border-radius:6px;padding:8px;text-align:center;}
+.doc-sum-cell .n{font-size:18px;font-weight:700;font-family:'DM Mono',monospace;}
+.doc-sum-cell .l{font-size:10px;color:var(--txt2);}
+
+.doc-prog-rows{margin-top:6px;}
+.doc-prog-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
+.doc-prog-name{font-size:11px;color:var(--txt2);width:80px;flex-shrink:0;}
+.doc-prog-bg{flex:1;height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;}
+.doc-prog-f{height:100%;border-radius:2px;background:var(--teal-mid);}
+.doc-prog-val{font-size:10px;color:var(--txt3);width:32px;text-align:right;font-family:'DM Mono',monospace;}
+
+.doc-table-wrap{padding:12px 20px;border-bottom:0.5px solid var(--border);}
+.doc-table{width:100%;border-collapse:collapse;font-size:11px;}
+.doc-table th{background:var(--teal-light);color:var(--teal);padding:6px 8px;text-align:left;font-weight:600;border:0.5px solid var(--border);}
+.doc-table td{padding:6px 8px;border:0.5px solid var(--border);vertical-align:top;line-height:1.4;}
+.doc-table tr:nth-child(even) td{background:var(--bg2);}
+.status-done{color:var(--teal);font-weight:600;}
+.status-pending{color:var(--txt3);}
+.status-flagged{color:var(--red-mid);font-weight:600;}
+
+.doc-catatan{padding:12px 20px;border-bottom:0.5px solid var(--border);}
+.doc-catatan-box{background:var(--bg2);border-radius:6px;padding:10px 12px;min-height:60px;font-size:12px;color:var(--txt2);}
+
+.doc-ttd{padding:16px 20px 20px;}
+.doc-ttd-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.doc-ttd-box{text-align:center;}
+.doc-ttd-box .role{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;margin-bottom:55px;color:var(--txt2);}
+.doc-ttd-box .line{border-top:1px solid var(--txt);padding-top:5px;}
+.doc-ttd-box .name{font-size:12px;font-weight:700;}
+.doc-ttd-box .nip{font-size:10px;color:var(--txt2);}
+
+
+/* ── MONTHLY REPORT TRACKER ──── */
+.rpt-section{margin-bottom:14px;border:0.5px solid var(--border);border-radius:var(--r);overflow:hidden;}
+.rpt-header{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--bg2);border-bottom:0.5px solid var(--border);}
+.rpt-header-title{font-size:13px;font-weight:600;flex:1;}
+.rpt-count{font-size:12px;color:var(--txt3);font-family:'DM Mono',monospace;}
+.rpt-item{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:0.5px solid var(--border);}
+.rpt-item:last-child{border-bottom:none;}
+.rpt-item.done .rpt-name{opacity:0.5;}
+.rpt-check{width:20px;height:20px;min-width:20px;border:1.5px solid var(--border2);border-radius:5px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;flex-shrink:0;}
+.rpt-check.chk{background:var(--teal);border-color:var(--teal);}
+.rpt-check svg{display:none;}
+.rpt-check.chk svg{display:block;}
+.rpt-info{flex:1;min-width:0;}
+.rpt-name{font-size:13px;font-weight:500;color:var(--txt);}
+.rpt-desc{font-size:11px;color:var(--txt2);margin-top:1px;}
+.rpt-target{font-size:10px;font-weight:600;padding:2px 7px;border-radius:8px;background:var(--purple-light);color:var(--purple);flex-shrink:0;}
+.rpt-missing{background:var(--red-light);border:0.5px solid #F09595;border-radius:var(--r-sm);padding:8px 12px;margin:0 14px 10px;font-size:12px;color:var(--red);display:none;}
+.rpt-missing.show{display:block;}
+
+
+/* ── PENGATURAN TAB ───────────────── */
+.sett-section{margin-bottom:16px;border:0.5px solid var(--border);border-radius:var(--r);overflow:hidden;}
+.sett-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg2);border-bottom:0.5px solid var(--border);}
+.sett-header-title{font-size:13px;font-weight:600;color:var(--txt);}
+.sett-body{padding:12px 14px;}
+.sett-field{margin-bottom:10px;}
+.sett-field label{display:block;font-size:11px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px;}
+.sett-field input,.sett-field select{width:100%;border:0.5px solid var(--border2);border-radius:var(--r-sm);padding:9px 11px;font-size:13px;background:var(--bg);color:var(--txt);font-family:'Plus Jakarta Sans',sans-serif;}
+.sett-field input:focus,.sett-field select:focus{outline:none;border-color:var(--teal);}
+.btn-sett-save{width:100%;background:var(--teal);color:white;border:none;border-radius:var(--r-sm);padding:12px;font-size:13px;font-weight:600;margin-top:4px;}
+.task-row{display:flex;align-items:flex-start;gap:8px;padding:9px 14px;border-bottom:0.5px solid var(--border);}
+.task-row:last-child{border-bottom:none;}
+.task-row-body{flex:1;min-width:0;}
+.task-row-label{font-size:13px;font-weight:500;color:var(--txt);}
+.task-row-sub{font-size:11px;color:var(--txt2);margin-top:2px;}
+.task-row-actions{display:flex;gap:4px;flex-shrink:0;}
+.btn-task-edit{border:0.5px solid var(--border2);background:var(--bg2);color:var(--txt2);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;}
+.btn-task-del{border:0.5px solid #F09595;background:none;color:var(--red);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;}
+.btn-task-add{width:100%;border:0.5px dashed var(--teal);background:var(--teal-pale);color:var(--teal);border-radius:var(--r-sm);padding:10px;font-size:13px;font-weight:600;margin-top:8px;}
+.ver-badge{font-size:11px;color:var(--txt3);font-family:'DM Mono',monospace;}
+/* ── DAILY HISTORY CHART ──────────── */
+.hist-chart{display:flex;align-items:flex-end;gap:4px;height:56px;margin-bottom:8px;padding:0 2px;}
+.hist-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.hist-bar{width:100%;border-radius:3px 3px 0 0;min-height:2px;background:var(--teal-mid);transition:height .3s;}
+.hist-bar.empty{background:var(--bg3);}
+.hist-date{font-size:9px;color:var(--txt3);font-family:'DM Mono',monospace;text-align:center;}
+.hist-pct{font-size:9px;color:var(--txt2);text-align:center;}
+
+/* ── EMPTY ────────────────────── */
+.empty{text-align:center;padding:40px 20px;color:var(--txt2);}
+.empty svg{width:48px;height:48px;margin:0 auto 12px;color:var(--txt3);}
+.empty p{font-size:13px;}
+
+/* ── TOAST ────────────────────── */
+.toast{
+  position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--txt);color:var(--bg);padding:10px 18px;
+  border-radius:24px;font-size:13px;font-weight:500;
+  opacity:0;transition:all 0.25s;z-index:600;white-space:nowrap;pointer-events:none;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ── PWA INSTALL BANNER ───────── */
+.install-banner{
+  display:none;position:fixed;bottom:76px;left:50%;
+  transform:translateX(-50%);z-index:400;
+  background:var(--teal);color:white;
+  border-radius:24px;padding:12px 20px;
+  font-size:13px;font-weight:600;
+  display:none;align-items:center;gap:10px;
+  box-shadow:0 4px 20px rgba(15,110,86,0.35);
+  white-space:nowrap;max-width:calc(100vw - 32px);
+}
+.install-banner.show{display:flex;}
+.install-banner button{
+  background:white;color:var(--teal);border:none;
+  border-radius:16px;padding:5px 14px;font-size:12px;
+  font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;
+}
+.install-banner .dismiss{
+  background:transparent;color:rgba(255,255,255,0.7);
+  border:none;font-size:18px;line-height:1;padding:0 0 0 4px;cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;
+}
+@media print{.install-banner{display:none!important;}}
+</style>
+</head>
+<body>
+
+<!-- PWA INSTALL BANNER -->
+<div class="install-banner" id="install-banner">
+  <span>📲 Instal sebagai App</span>
+  <button onclick="triggerInstall()">Instal</button>
+  <button class="dismiss" onclick="dismissInstall()">×</button>
+</div>
+
+<div id="app">
+
+  <!-- HEADER -->
+  <div class="app-bar">
+    <div class="app-bar-left">
+      <h1>Ketua Tim LIM</h1>
+      <p id="hdr-period">WAWP · 2026</p>
+    </div>
+    <div class="app-bar-right">
+      <button class="period-chip" onclick="openModal('period')" id="period-btn">Atur Periode</button>
+    </div>
+  </div>
+
+  <!-- BERANDA -->
+  <div class="view active" id="view-beranda">
+    <div class="dash-hero">
+      <div class="dash-hero-top">
+        <div>
+          <h2 id="d-period-label">Periode Aktif</h2>
+          <p id="d-period-sub">BMKG · Stasiun Meteorologi WAWP Kolaka</p>
+        <p id="d-wita-clock" style="font-size:11px;color:rgba(255,255,255,0.75);margin-top:2px;font-family:'DM Mono',monospace;"></p>
+        </div>
+        <div class="overall-ring">
+          <div class="pct" id="d-overall-pct">0%</div>
+          <div class="lbl">Selesai</div>
+        </div>
+      </div>
+      <div class="dash-prog-bar"><div class="dash-prog-fill" id="d-overall-fill" style="width:0%"></div></div>
+    </div>
+
+    <div id="d-flag-alert" style="display:none">
+      <div class="flagged-alert">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a10 10 0 100 20A10 10 0 0012 2zm0 14a1 1 0 110-2 1 1 0 010 2zm1-4a1 1 0 11-2 0V8a1 1 0 112 0v4z"/></svg>
+        <div class="flagged-alert-text"><strong id="d-flag-count">0 item</strong> bertanda merah memerlukan perhatianmu.</div>
+      </div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card green"><div class="sn" id="d-done">0</div><div class="sl">Tugas selesai</div></div>
+      <div class="stat-card"><div class="sn" id="d-remain">0</div><div class="sl">Masih tertunda</div></div>
+      <div class="stat-card purple"><div class="sn" id="d-total">0</div><div class="sl">Total tugas</div></div>
+      <div class="stat-card red"><div class="sn" id="d-flagged">0</div><div class="sl">Ditandai merah</div></div>
+    </div>
+
+    <div class="section-prog-list">
+      <div class="spl-title">Progress per Kadence</div>
+      <div id="d-cadence-bars"></div>
+    </div>
+
+    <div class="section-prog-list">
+      <div class="spl-title">Riwayat Harian (30 Hari)</div>
+      <div id="d-daily-hist"></div>
+    </div>
+
+    <div style="font-size:12px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Arsip Terakhir</div>
+    <div id="d-recent-arch"></div>
+  </div>
+
+  <!-- CHECKLIST -->
+  <div class="view" id="view-checklist">
+    <div class="filter-row" id="filter-row">
+      <button class="filter-chip active" data-filter="semua" onclick="setFilter('semua',this)">Semua</button>
+      <button class="filter-chip" data-filter="harian" onclick="setFilter('harian',this)">Harian</button>
+      <button class="filter-chip" data-filter="mingguan" onclick="setFilter('mingguan',this)">Mingguan</button>
+      <button class="filter-chip" data-filter="bulanan" onclick="setFilter('bulanan',this)">Bulanan</button>
+      <button class="filter-chip" data-filter="triwulanan" onclick="setFilter('triwulanan',this)">Triwulanan</button>
+      <button class="filter-chip" data-filter="tahunan" onclick="setFilter('tahunan',this)">Tahunan</button>
+      <button class="filter-chip" data-filter="flagged" onclick="setFilter('flagged',this)">🚩 Ditandai</button>
+    </div>
+    <div id="checklist-body"></div>
+  </div>
+
+  <!-- ARSIP -->
+  <div class="view" id="view-arsip">
+    <div class="arch-actions">
+      <button class="btn-arch" onclick="openModal('archive')">
+        <svg fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M5 8h14M5 8a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v1a2 2 0 01-2 2M5 8v11a2 2 0 002 2h10a2 2 0 002-2V8"/></svg>
+        Arsipkan Periode Ini
+      </button>
+    </div>
+    <div class="sync-row">
+      <button class="btn-sync export" onclick="exportData()">
+        <svg fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+        Ekspor Data
+      </button>
+      <button class="btn-sync import" onclick="document.getElementById('inp-file-import').click()">
+        <svg fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+        Impor Data
+      </button>
+      <input type="file" id="inp-file-import" accept=".json" onchange="importData(this)">
+    </div>
+    <div class="sync-info">
+      <div><span class="sync-dot"></span><strong>Ekspor</strong> — unduh file <code style="font-family:'DM Mono',monospace;background:var(--bg3);padding:1px 4px;border-radius:3px;">.json</code> berisi semua data (checklist, arsip, catatan). Simpan di Google Drive, kirim via WhatsApp ke diri sendiri, atau transfer ke HP.</div>
+      <div style="margin-top:6px"><span class="sync-dot warn"></span><strong>Impor</strong> — muat file <code style="font-family:'DM Mono',monospace;background:var(--bg3);padding:1px 4px;border-radius:3px;">.json</code> yang pernah diekspor. Arsip lama dipertahankan, status checklist &amp; catatan diperbarui dari file.</div>
+    </div>
+    <div style="font-size:12px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Semua Arsip</div>
+    <div id="arch-body">
+      <div class="empty">
+        <svg fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="1.5" d="M5 8h14M5 8a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v1a2 2 0 01-2 2M5 8v11a2 2 0 002 2h10a2 2 0 002-2V8"/></svg>
+        <p>Belum ada arsip.<br>Arsipkan periode aktif setelah selesai.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CETAK -->
+  <div class="view" id="view-print">
+    <div class="print-toolbar">
+      <button class="btn-print" onclick="window.print()">
+        <svg fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z"/></svg>
+        Cetak Dokumen
+      </button>
+      <button class="btn-share" onclick="copyPrintText()">Salin</button>
+    </div>
+
+    <div class="print-preview" id="print-doc">
+      <!-- Kop Surat -->
+      <div class="doc-kop">
+        <div class="doc-kop-logo" style="background:none;padding:0;">
+          <img id="kop-logo-img" alt="BMKG" style="width:64px;height:64px;object-fit:contain;">
+        </div>
+        <div class="doc-kop-text">
+          <div class="org">BADAN METEOROLOGI, KLIMATOLOGI, DAN GEOFISIKA</div>
+          <div class="sub-org">STASIUN METEOROLOGI KELAS III SANGIA NIBANDERA KOLAKA</div>
+          <div class="addr">Jalan Protokol No. 1, Pomalaa, Kolaka 93562 · Telp: (0405) 2401622</div>
+        </div>
+      </div>
+
+      <!-- Judul -->
+      <div class="doc-title-block">
+        <div class="doc-title">Laporan Kinerja Ketua Tim Unit Layanan Informasi Meteorologi</div>
+        <div class="doc-sub">Berdasarkan SK KEP.20/KPUM/I/2026 dan Cascading IKU/IKI 2026</div>
+        <div class="doc-nomor" id="doc-nomor-el">Dokumen dihasilkan pada: —</div>
+      </div>
+
+      <!-- Identitas -->
+      <div class="doc-meta">
+        <div class="doc-section-title">Identitas Pejabat</div>
+        <table>
+          <tr><td>Nama</td><td>:</td><td>Muhammad Subhan Al Zibrah, S.Tr.Met.</td></tr>
+          <tr><td>NIP</td><td>:</td><td>200009262023021004</td></tr>
+          <tr><td>Jabatan</td><td>:</td><td>Ketua Tim Unit Layanan Informasi Meteorologi</td></tr>
+          <tr><td>Pangkat/Gol.</td><td>:</td><td>Penata Muda / III a</td></tr>
+          <tr><td>Unit Kerja</td><td>:</td><td>Stasiun Meteorologi Sangia Nibandera Kolaka</td></tr>
+          <tr><td>Periode Laporan</td><td>:</td><td id="doc-period-el">—</td></tr>
+          <tr><td>Tanggal Cetak</td><td>:</td><td id="doc-date-el">—</td></tr>
+        </table>
+      </div>
+
+      <!-- Ringkasan -->
+      <div class="doc-summary">
+        <div class="doc-section-title">Ringkasan Capaian</div>
+        <div class="doc-summary-grid" id="doc-sum-grid"></div>
+        <div class="doc-prog-rows" id="doc-prog-rows"></div>
+      </div>
+
+      <!-- Tabel per kadence -->
+      <div id="doc-tables"></div>
+
+      <!-- Catatan -->
+      <div class="doc-catatan">
+        <div class="doc-section-title">Catatan & Keterangan Tambahan</div>
+        <div class="doc-catatan-box" id="doc-catatan-box" contenteditable="true" spellcheck="false">
+          (Klik untuk menambahkan catatan, temuan, atau keterangan tambahan yang perlu dilaporkan kepada Kepala Stasiun)
+        </div>
+      </div>
+
+      <!-- Tanda Tangan -->
+      <div class="doc-ttd">
+        <div class="doc-ttd-grid">
+          <div class="doc-ttd-box">
+            <div class="role">Mengetahui,<br>Kepala Stasiun</div>
+            <div class="line">
+              <div class="name">DANU TRIATMOKO</div>
+              <div class="nip">NIP. —</div>
+            </div>
+          </div>
+          <div class="doc-ttd-box">
+            <div class="role">Kolaka, <span id="doc-sign-date">—</span><br>Ketua Tim Unit LIM</div>
+            <div class="line">
+              <div class="name">Muhammad Subhan Al Zibrah, S.Tr.Met.</div>
+              <div class="nip">NIP. 200009262023021004</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PENGATURAN -->
+  <div class="view" id="view-pengaturan">
+
+    <!-- Profil -->
+    <div class="sett-section">
+      <div class="sett-header">
+        <span class="sett-header-title">Profil Pejabat</span>
+        <span class="ver-badge">v<span id="sett-ver"></span></span>
+      </div>
+      <div class="sett-body">
+        <div class="sett-field"><label>Nama Lengkap</label><input type="text" id="sett-nama" placeholder="Nama..."></div>
+        <div class="sett-field"><label>NIP</label><input type="text" id="sett-nip" placeholder="NIP..."></div>
+        <div class="sett-field"><label>Jabatan</label><input type="text" id="sett-jabatan" placeholder="Jabatan..."></div>
+        <div class="sett-field"><label>Pangkat / Golongan</label><input type="text" id="sett-pangkat" placeholder="Pangkat..."></div>
+        <button class="btn-sett-save" onclick="saveProfile()">Simpan Profil</button>
+      </div>
+    </div>
+
+    <!-- Tugas Checklist -->
+    <div class="sett-section">
+      <div class="sett-header">
+        <span class="sett-header-title">Daftar Tugas Checklist</span>
+        <span class="ver-badge" id="sett-task-cnt"></span>
+      </div>
+      <div id="sett-task-list"></div>
+      <div style="padding:0 14px 12px;">
+        <button class="btn-task-add" onclick="openModal('addtask')">+ Tambah Tugas Baru</button>
+        <button style="width:100%;margin-top:6px;border:0.5px solid var(--border2);background:none;color:var(--txt2);border-radius:var(--r-sm);padding:9px;font-size:12px;" onclick="resetTasksToDefault()">Kembalikan ke Tugas Default</button>
+      </div>
+    </div>
+
+    <!-- Laporan Bulanan -->
+    <div class="sett-section">
+      <div class="sett-header">
+        <span class="sett-header-title">Daftar Laporan Bulanan</span>
+        <span class="ver-badge" id="sett-rpt-cnt"></span>
+      </div>
+      <div id="sett-rpt-list"></div>
+      <div style="padding:0 14px 12px;">
+        <button class="btn-task-add" onclick="openModal('addrpt')">+ Tambah Laporan Baru</button>
+        <button style="width:100%;margin-top:6px;border:0.5px solid var(--border2);background:none;color:var(--txt2);border-radius:var(--r-sm);padding:9px;font-size:12px;" onclick="resetReportsToDefault()">Kembalikan ke Laporan Default</button>
+      </div>
+    </div>
+
+  </div>
+
+</div><!-- /app -->
+
+<!-- BOTTOM NAV -->
+<nav class="tab-nav">
+  <button class="tab-btn active" id="tab-beranda" onclick="switchTab('beranda')">
+    <svg fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+    Beranda
+    <div class="tab-indicator"></div>
+  </button>
+  <button class="tab-btn" id="tab-checklist" onclick="switchTab('checklist')">
+    <svg fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    Checklist
+    <div class="tab-indicator"></div>
+  </button>
+  <button class="tab-btn" id="tab-arsip" onclick="switchTab('arsip')">
+    <svg fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M5 8h14M5 8a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v1a2 2 0 01-2 2M5 8v11a2 2 0 002 2h10a2 2 0 002-2V8"/></svg>
+    Arsip
+    <div class="tab-indicator"></div>
+  </button>
+  <button class="tab-btn" id="tab-print" onclick="switchTab('print')">
+    <svg fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+    Cetak
+    <div class="tab-indicator"></div>
+  </button>
+  <button class="tab-btn" id="tab-pengaturan" onclick="switchTab('pengaturan')">
+    <svg fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke="currentColor" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+    Pengaturan
+    <div class="tab-indicator"></div>
+  </button>
+</nav>
+
+<!-- MODALS -->
+<div class="overlay" id="modal-overlay" onclick="closeModal()">
+  <!-- Period modal -->
+  <div class="modal" id="modal-period" onclick="e=>e.stopPropagation()" style="display:none">
+    <h3>Atur Periode Aktif</h3>
+    <p>Nama periode akan muncul di header dan dokumen cetak.</p>
+    <label>Nama Periode (contoh: Maret 2026)</label>
+    <input type="text" id="inp-period" placeholder="Maret 2026" oninput="previewPeriod()">
+    <label>Catatan Tambahan</label>
+    <input type="text" id="inp-period-note" placeholder="Triwulan I, dll.">
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="closeModal()">Batal</button>
+      <button class="btn-primary" onclick="savePeriod()">Simpan</button>
+    </div>
+  </div>
+  <!-- Archive modal -->
+  <div class="modal" id="modal-archive" onclick="e=>e.stopPropagation()" style="display:none">
+    <h3>Arsipkan Periode Ini</h3>
+    <p>Status checklist saat ini akan disimpan permanen ke arsip. Setelah diarsipkan, semua item akan direset untuk periode baru.</p>
+    <label>Label Arsip</label>
+    <input type="text" id="inp-arch-label" placeholder="Maret 2026">
+    <label>Catatan Ringkas (opsional)</label>
+    <textarea id="inp-arch-note" placeholder="Ringkasan capaian, kendala, atau catatan penting periode ini..." rows="3"></textarea>
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="closeModal()">Batal</button>
+      <button class="btn-primary" onclick="doArchive()">Arsipkan & Reset</button>
+    </div>
+  </div>
+  <!-- Import confirm modal -->
+  <div class="modal" id="modal-import" onclick="e=>e.stopPropagation()" style="display:none">
+    <h3>Konfirmasi Impor</h3>
+    <p id="imp-desc">Memuat file...</p>
+    <div style="background:var(--amber-light);border:0.5px solid #EF9F27;border-radius:8px;padding:10px 12px;margin-bottom:16px;font-size:12px;color:var(--amber);line-height:1.5;">
+      <strong>Perhatian:</strong> Status checklist aktif dan catatan akan ditimpa dengan data dari file. Arsip yang sudah ada akan digabung (tidak dihapus).
+    </div>
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="closeModal();clearFileInput()">Batal</button>
+      <button class="btn-primary" id="btn-confirm-import" onclick="confirmImport()">Impor Sekarang</button>
+    </div>
+  </div>
+</div>
+
+<!-- TASK MODAL -->
+<div class="overlay" id="modal-task-overlay" onclick="closeTaskModal()">
+  <div class="modal" onclick="event.stopPropagation()" style="display:block">
+    <h3 id="task-modal-title">Tambah Tugas</h3>
+    <p>Tugas baru akan muncul di tab Checklist sesuai kadence yang dipilih.</p>
+    <input type="hidden" id="task-modal-id">
+    <label>Label Tugas</label>
+    <input type="text" id="task-modal-label" placeholder="Contoh: Periksa data sinoptik harian">
+    <label>Keterangan / Sub-teks</label>
+    <input type="text" id="task-modal-sub" placeholder="Bukti dukung atau detail tugas...">
+    <label>Kadence</label>
+    <select id="task-modal-cadence">
+      <option value="harian">Harian</option>
+      <option value="mingguan">Mingguan</option>
+      <option value="bulanan">Bulanan</option>
+      <option value="triwulanan">Triwulanan</option>
+      <option value="tahunan">Tahunan</option>
+    </select>
+    <label>Tag IKI / Target (opsional)</label>
+    <input type="text" id="task-modal-pill" placeholder="Contoh: Target: 12 laporan/tahun">
+    <label>Tipe Tag</label>
+    <select id="task-modal-pill-type">
+      <option value="own">IKI Personal (ungu)</option>
+      <option value="sup">Supervisi (biru)</option>
+      <option value="collab">Lintas Tim (amber)</option>
+    </select>
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="closeTaskModal()">Batal</button>
+      <button class="btn-primary" onclick="saveTask()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- REPORT MODAL -->
+<div class="overlay" id="modal-rpt-overlay" onclick="closeRptModal()">
+  <div class="modal" onclick="event.stopPropagation()" style="display:block">
+    <h3 id="rpt-modal-title">Tambah Laporan Bulanan</h3>
+    <p>Laporan akan muncul di tracker kompilasi bulanan.</p>
+    <input type="hidden" id="rpt-modal-id">
+    <label>Nama Laporan</label>
+    <input type="text" id="rpt-modal-name" placeholder="Contoh: Laporan Evaluasi SIGMET">
+    <label>Penanggung Jawab (PIC)</label>
+    <input type="text" id="rpt-modal-pic" placeholder="Nama forecaster atau tim...">
+    <label>Target</label>
+    <input type="text" id="rpt-modal-target" placeholder="Contoh: 12 laporan/tahun">
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="closeRptModal()">Batal</button>
+      <button class="btn-primary" onclick="saveReport()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+const APP_VERSION = '3.0.0';
+const SCHEMA_VERSION = 3;
+
+const BMKG_LOGO='data:image/webp;base64,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';
+
+/* ═══════════════════════════════
+   DATA
+═══════════════════════════════ */
+const ITEMS = [
+  // HARIAN
+  {id:'h1',cadence:'harian',label:'Pantau akurasi & ketepatan waktu METAR',sub:'Catat setiap deviasi — bukti dukung: laporan evaluasi akurasi METAR tiap forecaster (12 laporan/tahun, PIC: Satriawan)',pills:[{t:'sup',v:'METAR 100%'}]},
+  {id:'h2',cadence:'harian',label:'Pantau akurasi TAF & verifikasi harian',sub:'Pastikan analisis data sebelum TAF diterbitkan — bukti: laporan verifikasi TAF (PIC: Anwar, 12 laporan/tahun)',pills:[{t:'sup',v:'TAF 97,5%'}]},
+  {id:'h3',cadence:'harian',label:'Pantau kelengkapan Flight Documentation di INA-SIAM',sub:'Sesuai jadwal penerbangan — bukti: laporan evaluasi Flight Doc (PIC: Hijrah, 12 laporan/tahun)',pills:[{t:'sup',v:'Flight Doc 100%'}]},
+  {id:'h4',cadence:'harian',label:'Pantau penerbitan AD WRNG sesuai standar',sub:'Segera sesuai prosedur — bukti: laporan verifikasi AD WRNG (PIC: Adi, 12 laporan/tahun)',pills:[{t:'sup',v:'AD WRNG 97,5%'}]},
+  {id:'h5',cadence:'harian',label:'Tangani umpan balik stakeholder eksternal',sub:'Bandara Sangia Nibandera, maskapai, BPBD — respons di hari yang sama bila memungkinkan',pills:[{t:'sup',v:'IKM ≥ 3,8'}]},
+  // MINGGUAN
+  {id:'w1',cadence:'mingguan',label:'Tinjau progres Monthly Aviation Weather Summary',sub:'Kamu co-owner IKI ini bersama Adi, Yasser, Figo — 1 dokumen/bulan wajib terbit',pills:[{t:'own',v:'IKI personal: 12 dok/tahun'}]},
+  {id:'w2',cadence:'mingguan',label:'Tinjau rekap deviasi & insiden operasional',sub:'Identifikasi pola berulang — sinyal awal sebelum mempengaruhi capaian IKU triwulanan',pills:[{t:'sup',v:'Basis evaluasi bulanan'}]},
+  {id:'w3',cadence:'mingguan',label:'Eskalasi ke Kepala Stasiun jika ada isu kritis',sub:'Jangan tunggu rapat bulanan — terutama jika target IKU terancam tidak tercapai',pills:[{t:'collab',v:'LAKjIP target: BB'}]},
+  // BULANAN
+  {id:'m1',cadence:'bulanan',label:'Pastikan laporan operasional Portal dikirim tepat waktu',sub:'IKI atas namamu — Portal Laporan Stasiun Meteorologi Penerbangan, target 4 indeks/tahun',pills:[{t:'own',v:'IKI personal: 4 indeks/tahun'}]},
+  {id:'m2',cadence:'bulanan',label:'Terbitkan Monthly Aviation Weather Summary bulan ini',sub:'Koordinasi dengan Adi, Yasser, Figo — 12 dok/tahun, bukti: dokumen yang disebarluaskan',pills:[{t:'own',v:'IKI co-owner: 12 dok/tahun'}]},
+  {id:'m3',cadence:'bulanan',label:'Pimpin rapat evaluasi internal & buat notulen',sub:'Setiap rapat menghasilkan action items dengan penanggung jawab & tenggat yang jelas',pills:[{t:'collab',v:'IKI Tim Kerja: 4 laporan/tahun'}]},
+  {id:'m4',cadence:'bulanan',label:'Susun laporan perkembangan layanan ke Kepala Stasiun',sub:'Capaian vs target IKU bulan berjalan, masalah aktif, dan rekomendasi untuk keputusan pimpinan',pills:[{t:'sup',v:'Basis: laporan evaluasi tim'}]},
+  {id:'m5',cadence:'bulanan',label:'Pantau progres Kolaka Monthly Weather Report',sub:'PIC utama: Hijrah et al. — pastikan 12 dokumen/tahun terpenuhi, koordinasi 6 anggota',pills:[{t:'sup',v:'Supervisi: 12 dok/tahun'}]},
+  {id:'m6',cadence:'bulanan',label:'Verifikasi tindak lanjut action items rapat bulan lalu',sub:'Setiap item harus punya status: selesai, berlangsung, atau ditunda dengan alasan',pills:[{t:'collab',v:'IKPA target: 97'}]},
+  // TRIWULANAN
+  {id:'q1',cadence:'triwulanan',label:'Submit laporan operasional via Portal (1 indeks per triwulan)',sub:'Deliverable IKI personal — kelengkapan data dukung wajib dipastikan sebelum dikirim',pills:[{t:'own',v:'IKI personal: indeks ke-1/2/3/4'}]},
+  {id:'q2',cadence:'triwulanan',label:'Pastikan laporan monitoring & evaluasi Tim Kerja tersusun',sub:'Target: 4 laporan/tahun (1 per triwulan) — co-owner bersama Ketua Tim DIM dan SKB',pills:[{t:'collab',v:'IKI lintas tim: 4 laporan/tahun'}]},
+  {id:'q3',cadence:'triwulanan',label:'Laksanakan sosialisasi informasi meteorologi penerbangan',sub:'Target direktorat: 4 laporan/tahun (per triwulan) — bukti: rilis laporan kegiatan & pembagian tugas tim',pills:[{t:'sup',v:'Supervisi: 4 laporan triwulanan'}]},
+  {id:'q4',cadence:'triwulanan',label:'Pantau penyelesaian analisis fenomena meteorologi signifikan',sub:'Setiap kejadian cuaca ekstrem di wilayah kerja WAWP wajib terdokumentasi — target: 4 indeks lengkap',pills:[{t:'sup',v:'Supervisi: 4 indeks/tahun'}]},
+  // TAHUNAN
+  {id:'a1',cadence:'tahunan',label:'Koordinasikan penerbitan Catatan Iklim Kolaka',sub:'Target: 1 dokumen/tahun — PIC: Satriawan, Anwar, Basruddin, Faisal. Pastikan tepat waktu',pills:[{t:'sup',v:'Supervisi: 1 dok/tahun'}]},
+  {id:'a2',cadence:'tahunan',label:'Pastikan pelaksanaan Survey Kepuasan Masyarakat (2x setahun)',sub:'Bukti: rilis laporan e-SKM BMKG — PIC: Hijrah dan Safinatunnajah. Nilai IKM wajib ≥ 3,8',pills:[{t:'sup',v:'IKM target: ≥ 3,8 Skala Likert'}]},
+  {id:'a3',cadence:'tahunan',label:'Siapkan kontribusi untuk dokumen LAKjIP satker',sub:'Co-owner IKI ini — target predikat BB, bukti: LHE Inspektorat',pills:[{t:'collab',v:'IKI lintas tim: LAKjIP BB'}]},
+  {id:'a4',cadence:'tahunan',label:'Siapkan dokumen evaluasi anggaran untuk Ravalnas',sub:'Target: 1 dokumen — co-owner bersama PPK. Bukti: dokumen hasil evaluasi kegiatan anggaran satker',pills:[{t:'collab',v:'IKI lintas tim: 1 dokumen'}]},
+  {id:'a5',cadence:'tahunan',label:'Susun inovasi layanan publik bersama tim',sub:'Contoh: nowcasting berbasis GPM IMERG, peningkatan diseminasi digital, SOP lokal baru — 1–2 per tahun',pills:[{t:'own',v:'Tugas SK: inovasi tahunan'}]},
+  {id:'a6',cadence:'tahunan',label:'Dukung pencapaian nilai IKPA satker ≥ 97',sub:'Kontribusi melalui ketepatan data dukung dan kelengkapan laporan unit LIM',pills:[{t:'collab',v:'IKI lintas tim: IKPA 97'}]},
+];
+
+const CADENCES = ['harian','mingguan','bulanan','triwulanan','tahunan'];
+const CADENCE_LABELS = {harian:'Harian',mingguan:'Mingguan',bulanan:'Bulanan',triwulanan:'Triwulanan',tahunan:'Tahunan'};
+
+function getTasks(){ return (state.customTasks && state.customTasks.length) ? state.customTasks : ITEMS; }
+function getReports(){ return (state.customReports && state.customReports.length) ? state.customReports : MONTHLY_REPORTS; }
+function getWITA(){ return new Date(Date.now() + 8*3600000); }
+function getTodayWITA(){ return getWITA().toISOString().slice(0,10); }
+
+/* ═══════════════════════════════
+   STATE & STORAGE
+═══════════════════════════════ */
+const KEY = 'wawp_lim_v2';
+let state = {
+  period: 'Periode Aktif',
+  periodNote: '',
+  items: {},
+  archives: [],
+  profile: {
+    nama: 'Muhammad Subhan Al Zibrah, S.Tr.Met.',
+    nip: '200009262023021004',
+    jabatan: 'Ketua Tim Unit Layanan Informasi Meteorologi',
+    pangkat: 'Penata Muda / III a'
+  },
+  customTasks: [],
+  customReports: [],
+  dailyHistory: []
+};
+
+function loadState(){
+  try {
+    const raw = localStorage.getItem(KEY);
+    if(raw) state = JSON.parse(raw);
+  } catch(e){}
+  // Ensure all items have defaults
+  getTasks().forEach(it => {
+    if(!state.items[it.id]) state.items[it.id] = {done:false,flagged:false,note:''};
+  });
+}
+
+function saveState(){
+  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e){}
+}
+
+/* ═══════════════════════════════
+   TABS
+═══════════════════════════════ */
+let currentTab = 'beranda';
+
+function switchTab(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+  currentTab = name;
+  if(name==='beranda')     { renderDashboard(); renderDailyHistory(); }
+  if(name==='checklist')   renderChecklist();
+  if(name==='arsip')       renderArchive();
+  if(name==='print')       renderPrint();
+  if(name==='pengaturan')  renderPengaturan();
+}
+
+/* ═══════════════════════════════
+   DASHBOARD
+═══════════════════════════════ */
+function renderDashboard(){
+  const TASKS = getTasks();
+  const all = TASKS.length;
+  const done = TASKS.filter(it=>state.items[it.id]?.done).length;
+  const flagged = TASKS.filter(it=>state.items[it.id]?.flagged).length;
+  const pct = Math.round(done/all*100);
+
+  const TASKS = getTasks();
+  document.getElementById('d-period-label').textContent = state.period || 'Periode Aktif';
+  document.getElementById('d-period-sub').textContent = state.periodNote
+    ? 'BMKG · WAWP Kolaka · '+state.periodNote
+    : 'BMKG · Stasiun Meteorologi WAWP Kolaka';
+  document.getElementById('d-overall-pct').textContent = pct+'%';
+  document.getElementById('d-overall-fill').style.width = pct+'%';
+  document.getElementById('d-done').textContent = done;
+  document.getElementById('d-remain').textContent = all-done;
+  document.getElementById('d-total').textContent = all;
+  document.getElementById('d-flagged').textContent = flagged;
+  document.getElementById('hdr-period').textContent = (state.period||'WAWP')+' · 2026';
+
+  // Flag alert
+  const fa = document.getElementById('d-flag-alert');
+  if(flagged>0){
+    fa.style.display='block';
+    document.getElementById('d-flag-count').textContent = flagged+' item';
+  } else fa.style.display='none';
+
+  // Per-cadence bars
+  const barsEl = document.getElementById('d-cadence-bars');
+  barsEl.innerHTML = CADENCES.map(c=>{
+    const citems = TASKS.filter(it=>it.cadence===c);
+    const cdone = citems.filter(it=>state.items[it.id]?.done).length;
+    const cpct = citems.length ? Math.round(cdone/citems.length*100) : 0;
+    return `<div class="spl-item">
+      <div class="spl-label">${CADENCE_LABELS[c]}</div>
+      <div class="spl-bar"><div class="spl-fill" style="width:${cpct}%"></div></div>
+      <div class="spl-pct">${cpct}%</div>
+    </div>`;
+  }).join('');
+
+  // Recent archive
+  const archEl = document.getElementById('d-recent-arch');
+  const recents = state.archives.slice(-2).reverse();
+  if(recents.length===0){
+    archEl.innerHTML = '<div style="font-size:12px;color:var(--txt3);padding:8px 0">Belum ada arsip.</div>';
+  } else {
+    archEl.innerHTML = recents.map(a=>`
+      <div style="border:0.5px solid var(--border);border-radius:var(--r-sm);padding:10px 12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-size:13px;font-weight:600;">${a.label}</div>
+          <div style="font-size:11px;color:var(--txt3);margin-top:1px;font-family:'DM Mono',monospace;">${a.date}</div>
+        </div>
+        <div style="font-size:13px;font-weight:700;font-family:'DM Mono',monospace;color:${a.pct>=80?'var(--teal)':a.pct>=50?'var(--amber)':'var(--red-mid)'};">${a.pct}%</div>
+      </div>`).join('');
+  }
+}
+
+/* ═══════════════════════════════
+   CHECKLIST
+═══════════════════════════════ */
+let currentFilter = 'semua';
+
+function setFilter(f, btn){
+  currentFilter = f;
+  document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  renderChecklist();
+}
+
+function renderChecklist(){
+  const TASKS = getTasks();
+  const body = document.getElementById('checklist-body');
+  const cads = currentFilter==='semua' ? CADENCES
+    : currentFilter==='flagged' ? CADENCES
+    : [currentFilter];
+
+  let html = '';
+  // Inject report tracker before or within bulanan section
+  const showTracker = (currentFilter==='semua'||currentFilter==='bulanan');
+  for(const c of cads){
+    let items = TASKS.filter(it=>it.cadence===c);
+    if(currentFilter==='flagged') items = items.filter(it=>state.items[it.id]?.flagged);
+    if(!items.length) continue;
+
+    const done = items.filter(it=>state.items[it.id]?.done).length;
+    const pct = items.length ? Math.round(done/items.length*100) : 0;
+
+    html += `<div class="cadence-section" id="sec-${c}">
+      <div class="cadence-header">
+        <span class="badge b-${c}">${CADENCE_LABELS[c]}</span>
+        <span class="cadence-title">${cadenceDesc(c)}</span>
+        <div class="cadence-meta">
+          <div class="cadence-mini-bar"><div class="cadence-mini-fill" style="width:${pct}%"></div></div>
+          <span class="cadence-cnt">${done}/${items.length}</span>
+        </div>
+      </div>`;
+    if(c==='bulanan' && showTracker){
+      html += '<div id="monthly-report-tracker"></div>';
+    }
+    for(const it of items){
+      const st = state.items[it.id];
+      const pillsHtml = it.pills.map(p=>`<span class="pill p-${p.t}">${p.v}</span>`).join('');
+      const hasNote = st.note && st.note.trim().length>0;
+      html += `
+        <div class="item${st.done?' done':''}${st.flagged?' flagged':''}" id="item-${it.id}">
+          <div class="cb${st.done?' checked':''}" onclick="toggleDone('${it.id}')">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+              <path d="M1.5 5L3.5 7.5L8.5 2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="ibody">
+            <div class="ilabel">${it.label}</div>
+            <div class="isub">${it.sub}</div>
+            <div class="pills">${pillsHtml}</div>
+          </div>
+          <div class="iactions">
+            <button class="icon-btn${st.flagged?' flagged':''}" onclick="toggleFlag('${it.id}')" title="Tandai merah">
+              <svg fill="${st.flagged?'currentColor':'none'}" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg>
+            </button>
+            <button class="icon-btn${hasNote?' noted':''}" onclick="toggleNote('${it.id}')" title="Tambah catatan">
+              <svg fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="note-wrap${hasNote?' open':''}" id="note-${it.id}">
+          <textarea placeholder="Tambahkan catatan untuk item ini..." oninput="saveNote('${it.id}',this.value)">${st.note||''}</textarea>
+        </div>`;
+    }
+    html += '</div>';
+  }
+
+  if(currentFilter==='flagged' && !TASKS.find(it=>state.items[it.id]?.flagged)){
+    html = `<div class="empty">
+      <svg fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="1.5" d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg>
+      <p>Tidak ada item yang ditandai merah.</p>
+    </div>`;
+  }
+  body.innerHTML = html;
+  if(showTracker) renderReportTracker();
+}
+
+function cadenceDesc(c){
+  return {harian:'Supervisi & mutu produk',mingguan:'Evaluasi & koordinasi',bulanan:'Rapat, laporan & produk IKI',triwulanan:'Laporan wajib & IKI kumulatif',tahunan:'Perencanaan & inovasi strategis'}[c];
+}
+
+function toggleDone(id){
+  state.items[id].done = !state.items[id].done;
+  saveState();
+  renderChecklist();
+  renderDashboard();
+}
+
+function toggleFlag(id){
+  state.items[id].flagged = !state.items[id].flagged;
+  saveState();
+  const it = document.getElementById('item-'+id);
+  if(it){
+    it.classList.toggle('flagged', state.items[id].flagged);
+    const btn = it.querySelector('.iactions .icon-btn');
+    btn.classList.toggle('flagged', state.items[id].flagged);
+    const path = btn.querySelector('svg path');
+    path.setAttribute('fill', state.items[id].flagged?'currentColor':'none');
+  }
+  showToast(state.items[id].flagged ? '🚩 Item ditandai' : 'Tanda merah dihapus');
+  renderDashboard();
+}
+
+function toggleNote(id){
+  const wrap = document.getElementById('note-'+id);
+  if(wrap){ wrap.classList.toggle('open'); if(wrap.classList.contains('open')) wrap.querySelector('textarea').focus(); }
+}
+
+function saveNote(id, val){
+  state.items[id].note = val;
+  saveState();
+  // Update note btn color
+  const it = document.getElementById('item-'+id);
+  if(it){
+    const btn = it.querySelectorAll('.iactions .icon-btn')[1];
+    btn.classList.toggle('noted', val.trim().length>0);
+  }
+}
+
+/* ═══════════════════════════════
+   ARCHIVE
+═══════════════════════════════ */
+function renderArchive(){
+  const body = document.getElementById('arch-body');
+  if(!state.archives.length){
+    body.innerHTML = `<div class="empty">
+      <svg fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="1.5" d="M5 8h14M5 8a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v1a2 2 0 01-2 2M5 8v11a2 2 0 002 2h10a2 2 0 002-2V8"/></svg>
+      <p>Belum ada arsip.<br>Gunakan tombol di atas untuk mengarsipkan periode aktif.</p>
+    </div>`;
+    return;
+  }
+  body.innerHTML = [...state.archives].reverse().map(a=>{
+    const color = a.pct>=80?'var(--teal)':a.pct>=50?'var(--amber)':'var(--red-mid)';
+    const bgColor = a.pct>=80?'var(--teal-light)':a.pct>=50?'var(--amber-light)':'var(--red-light)';
+    const cBars = CADENCES.map(c=>{
+      const snap = a.snapshot.filter(s=>s.cadence===c);
+      const d = snap.filter(s=>s.done).length;
+      const p = snap.length ? Math.round(d/snap.length*100) : 0;
+      return `<div class="arch-bar-row">
+        <div class="arch-bar-label"><span>${CADENCE_LABELS[c]}</span><span>${d}/${snap.length}</span></div>
+        <div class="arch-prog-bg"><div class="arch-prog-fill" style="width:${p}%;background:${color}"></div></div>
+      </div>`;
+    }).join('');
+    const flagCount = a.snapshot.filter(s=>s.flagged).length;
+    return `<div class="arch-item" id="arch-${a.id}">
+      <div class="arch-item-header" onclick="toggleArchBody('${a.id}')">
+        <div class="arch-item-left">
+          <div class="arch-item-title">${a.label}</div>
+          <div class="arch-item-date">${a.date}</div>
+        </div>
+        <span class="arch-prog-pill" style="background:${bgColor};color:${color};">${a.pct}%</span>
+      </div>
+      <div class="arch-body" id="arch-body-${a.id}">
+        <div class="arch-stats">
+          <div class="arch-stat"><div class="n" style="color:var(--teal);">${a.done}</div><div class="l">Selesai</div></div>
+          <div class="arch-stat"><div class="n">${a.total-a.done}</div><div class="l">Tertunda</div></div>
+          <div class="arch-stat"><div class="n" style="color:var(--red-mid);">${flagCount}</div><div class="l">Merah</div></div>
+        </div>
+        ${cBars}
+        ${a.note?`<div class="arch-notes">${a.note}</div>`:''}
+        <button class="arch-del" onclick="deleteArchive('${a.id}')">Hapus Arsip Ini</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleArchBody(id){
+  document.getElementById('arch-body-'+id)?.classList.toggle('open');
+}
+
+function deleteArchive(id){
+  if(!confirm('Hapus arsip ini secara permanen?')) return;
+  state.archives = state.archives.filter(a=>a.id!==id);
+  saveState();
+  renderArchive();
+  showToast('Arsip dihapus');
+}
+
+function doArchive(){
+  const label = document.getElementById('inp-arch-label').value.trim() || state.period || 'Periode';
+  const note = document.getElementById('inp-arch-note').value.trim();
+  const done = getTasks().filter(it=>state.items[it.id]?.done).length;
+  const total = getTasks().length;
+  const pct = Math.round(done/total*100);
+  const reportsSnap = {...(state.reports||{})};
+  const snapshot = getTasks().map(it=>({
+    id:it.id, cadence:it.cadence, label:it.label,
+    done:state.items[it.id]?.done||false,
+    flagged:state.items[it.id]?.flagged||false,
+    note:state.items[it.id]?.note||''
+  }));
+  const arch = {
+    id: Date.now().toString(),
+    label, note,
+    date: new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}),
+    pct, done, total, snapshot, reportsSnap
+  };
+  state.archives.push(arch);
+  // Reset items
+  ITEMS.forEach(it=>{ state.items[it.id]={done:false,flagged:false,note:''}; });
+  saveState();
+  closeModal();
+  renderDashboard();
+  renderChecklist();
+  renderArchive();
+  showToast('✅ Periode berhasil diarsipkan & direset');
+}
+
+/* ═══════════════════════════════
+   PRINT
+═══════════════════════════════ */
+function renderPrint(){
+  const logoEl = document.getElementById('kop-logo-img');
+  if(logoEl) logoEl.src = BMKG_LOGO;
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('doc-date-el').textContent = dateStr;
+  document.getElementById('doc-sign-date').textContent = dateStr;
+  document.getElementById('doc-period-el').textContent = state.period || 'Periode Aktif';
+  document.getElementById('doc-nomor-el').textContent = 'Dihasilkan pada: '+dateStr;
+
+  const done = getTasks().filter(it=>state.items[it.id]?.done).length;
+  const total = getTasks().length;
+  const flagged = ITEMS.filter(it=>state.items[it.id]?.flagged).length;
+  const pct = Math.round(done/total*100);
+
+  // Summary grid
+  const sumEl = document.getElementById('doc-sum-grid');
+  const sumColor = pct>=80?'var(--teal)':pct>=50?'var(--amber)':'var(--red-mid)';
+  sumEl.innerHTML = `
+    <div class="doc-sum-cell"><div class="n" style="color:${sumColor}">${pct}%</div><div class="l">Total capaian</div></div>
+    <div class="doc-sum-cell"><div class="n" style="color:var(--teal)">${done}</div><div class="l">Tugas selesai</div></div>
+    <div class="doc-sum-cell"><div class="n">${total-done}</div><div class="l">Tertunda</div></div>
+    <div class="doc-sum-cell"><div class="n" style="color:var(--red-mid)">${flagged}</div><div class="l">Ditandai merah</div></div>`;
+
+  // Progress rows
+  const progEl = document.getElementById('doc-prog-rows');
+  progEl.innerHTML = CADENCES.map(c=>{
+    const citems = TASKS.filter(it=>it.cadence===c);
+    const cdone = citems.filter(it=>state.items[it.id]?.done).length;
+    const cpct = citems.length ? Math.round(cdone/citems.length*100) : 0;
+    return `<div class="doc-prog-row">
+      <div class="doc-prog-name">${CADENCE_LABELS[c]}</div>
+      <div class="doc-prog-bg"><div class="doc-prog-f" style="width:${cpct}%"></div></div>
+      <div class="doc-prog-val">${cpct}%</div>
+    </div>`;
+  }).join('');
+
+  // Tables per cadence
+  const tablesEl = document.getElementById('doc-tables');
+  tablesEl.innerHTML = CADENCES.map(c=>{
+    const items = TASKS.filter(it=>it.cadence===c);
+    const cdone = items.filter(it=>state.items[it.id]?.done).length;
+    const rows = items.map((it,i)=>{
+      const st = state.items[it.id];
+      let statusHtml='', statusClass='';
+      if(st.flagged){statusHtml='🚩 Perlu Perhatian';statusClass='status-flagged';}
+      else if(st.done){statusHtml='✓ Selesai';statusClass='status-done';}
+      else{statusHtml='– Belum';statusClass='status-pending';}
+      return `<tr>
+        <td style="width:24px;text-align:center;color:var(--txt3);">${i+1}</td>
+        <td>${it.label}</td>
+        <td style="width:90px;" class="${statusClass}">${statusHtml}</td>
+        <td style="width:130px;color:var(--txt2);">${it.pills.map(p=>p.v).join(', ')}</td>
+        <td style="width:100px;color:var(--txt2);font-style:italic;">${st.note||'—'}</td>
+      </tr>`;
+    }).join('');
+    return `<div class="doc-table-wrap">
+      <div class="doc-section-title" style="display:flex;justify-content:space-between;align-items:center;">
+        <span>Tugas ${CADENCE_LABELS[c]}</span>
+        <span style="font-size:11px;font-weight:500;color:var(--txt2);">${cdone}/${items.length} selesai</span>
+      </div>
+      <table class="doc-table">
+        <tr><th style="width:24px;">No.</th><th>Uraian Tugas</th><th style="width:90px;">Status</th><th style="width:130px;">IKI / Target</th><th style="width:100px;">Catatan</th></tr>
+        ${rows}
+      </table>
+    </div>`;
+  }).join('');
+}
+
+/* ═══════════════════════════════
+   MODAL
+═══════════════════════════════ */
+let currentModal = null;
+
+/* openModal moved to Pengaturan section */
+
+function closeModal(){
+  document.getElementById('modal-overlay').classList.remove('open');
+  currentModal = null;
+}
+
+document.getElementById('modal-overlay').addEventListener('click', function(e){
+  if(e.target===this) closeModal();
+});
+
+function savePeriod(){
+  const val = document.getElementById('inp-period').value.trim();
+  const note = document.getElementById('inp-period-note').value.trim();
+  if(!val){showToast('Nama periode tidak boleh kosong');return;}
+  state.period = val;
+  state.periodNote = note;
+  saveState();
+  closeModal();
+  renderDashboard();
+  showToast('Periode diperbarui: '+val);
+}
+
+function previewPeriod(){
+  // nothing needed live
+}
+
+function copyPrintText(){
+  renderPrint();
+  const lines = [];
+  lines.push('LAPORAN KINERJA KETUA TIM UNIT LIM');
+  lines.push('BMKG · Stasiun Meteorologi Sangia Nibandera Kolaka');
+  lines.push('Periode: '+state.period);
+  lines.push('');
+  const done = ITEMS.filter(it=>state.items[it.id]?.done).length;
+  lines.push('RINGKASAN: '+done+'/'+ITEMS.length+' tugas selesai ('+Math.round(done/ITEMS.length*100)+'%)');
+  lines.push('');
+  CADENCES.forEach(c=>{
+    const items = ITEMS.filter(it=>it.cadence===c);
+    lines.push('── '+CADENCE_LABELS[c].toUpperCase()+' ──');
+    items.forEach((it,i)=>{
+      const st = state.items[it.id];
+      const mark = st.done?'[✓]':st.flagged?'[!]':'[ ]';
+      lines.push(`${mark} ${it.label}`);
+    });
+    lines.push('');
+  });
+  navigator.clipboard?.writeText(lines.join('\n')).then(()=>showToast('Teks disalin ke clipboard'));
+}
+
+/* ═══════════════════════════════
+   TOAST
+═══════════════════════════════ */
+let toastTimer;
+function showToast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>el.classList.remove('show'), 2200);
+}
+
+
+/* ═══════════════════════════════
+   MONTHLY REPORT TRACKER DATA
+═══════════════════════════════ */
+const MONTHLY_REPORTS = [
+  {id:'rpt_metar',   name:'Laporan Evaluasi Akurasi METAR',      pic:'Satriawan N. Atsidiqi, S.Tr, M.Si',         target:'12 laporan/tahun'},
+  {id:'rpt_taf',     name:'Laporan Evaluasi Akurasi TAF',         pic:'Anwar Budi Nugroho, S.Tr.Met.',             target:'12 laporan/tahun'},
+  {id:'rpt_flightdoc',name:'Laporan Evaluasi Flight Documentation', pic:'Hijrah K. Musgamy, S.Si, M.Si',           target:'12 laporan/tahun'},
+  {id:'rpt_adwrng',  name:'Laporan Evaluasi Akurasi AD WRNG',     pic:'Adi Kusuma Nugraha, S.Tr.Met',              target:'12 laporan/tahun'},
+  {id:'rpt_stat',    name:'Laporan Monitoring Data Statistik Penerbangan', pic:'M. Figo Ramadhan, S.Tr.Met.',      target:'12 laporan/tahun'},
+  {id:'rpt_acs',     name:'Laporan Penyusunan Dokumen ACS',       pic:'Safinatunnajah Dinda Putri, S.Tr. Met.',    target:'12 laporan/tahun'},
+  {id:'rpt_mwr',     name:'Kolaka Monthly Weather Report',        pic:'Hijrah, Safinatunnajah, Dwi, Rainy, Faisal, Yasser', target:'12 dokumen/tahun'},
+  {id:'rpt_maws',    name:'Monthly Aviation Weather Summary',     pic:'Subhan (kamu), Adi, Yasser, Figo',         target:'12 dokumen/tahun'},
+  {id:'rpt_ekstrem', name:'Rekapitulasi Data Parameter Cuaca Ekstrem', pic:'Hijrah K. Musgamy, S.Si, M.Si',       target:'12 laporan/tahun'},
+];
+
+/* ═══════════════════════════════
+   AUTO-RESET LOGIC
+═══════════════════════════════ */
+const CADENCE_RESET = {harian:'daily', mingguan:'weekly'};
+
+function getTodayKey(){ return new Date().toISOString().slice(0,10); }
+function getWeekKey(){
+  const d = new Date();
+  const jan1 = new Date(d.getFullYear(),0,1);
+  const week = Math.ceil(((d-jan1)/86400000+jan1.getDay()+1)/7);
+  return d.getFullYear()+'-W'+String(week).padStart(2,'0');
+}
+function getMonthKey(){ return new Date().toISOString().slice(0,7); }
+
+function checkAutoReset(){
+  const wita     = getWITA();
+  const today    = wita.toISOString().slice(0,10);
+  const weekNum  = Math.ceil(((wita - new Date(wita.getFullYear(),0,1))/86400000 + new Date(wita.getFullYear(),0,1).getDay()+1)/7);
+  const week     = wita.getFullYear()+'-W'+String(weekNum).padStart(2,'0');
+  const month    = wita.toISOString().slice(0,7);
+  let changed    = false;
+
+  if(!state.lastReset)       state.lastReset = {};
+  if(!state.dailyHistory)    state.dailyHistory = [];
+  if(!state.lastDailyReset)  state.lastDailyReset = today;
+
+  // Save yesterday's completion before resetting
+  if(state.lastDailyReset !== today){
+    const allT = getTasks();
+    const doneCnt = allT.filter(it=>state.items[it.id]?.done).length;
+    state.dailyHistory.push({
+      date: state.lastDailyReset,
+      done: doneCnt,
+      total: allT.length,
+      pct: allT.length ? Math.round(doneCnt/allT.length*100) : 0
+    });
+    if(state.dailyHistory.length > 30) state.dailyHistory = state.dailyHistory.slice(-30);
+    state.lastDailyReset = today;
+    changed = true;
+  }
+
+  getTasks().forEach(it => {
+    if(it.cadence === 'harian'){
+      if(state.lastReset[it.id] !== today && state.items[it.id]?.done){
+        state.items[it.id].done = false;
+        state.lastReset[it.id] = today;
+        changed = true;
+      }
+      if(!state.lastReset[it.id]) state.lastReset[it.id] = today;
+    }
+    if(it.cadence === 'mingguan'){
+      if(state.lastReset[it.id] !== week && state.items[it.id]?.done){
+        state.items[it.id].done = false;
+        state.lastReset[it.id] = week;
+        changed = true;
+      }
+      if(!state.lastReset[it.id]) state.lastReset[it.id] = week;
+    }
+  });
+
+  // Reset monthly report tracker each new month
+  if(state.lastMonthKey !== month){
+    getReports().forEach(r => {
+      if(state.reports) state.reports[r.id] = false;
+    });
+    state.lastMonthKey = month;
+    changed = true;
+  }
+
+  if(changed) saveState();
+}
+
+function initReports(){
+  if(!state.reports) state.reports = {};
+  getReports().forEach(r => {
+    if(state.reports[r.id] === undefined) state.reports[r.id] = false;
+  });
+}
+
+
+/* ═══════════════════════════════
+   MONTHLY REPORT TRACKER RENDER
+═══════════════════════════════ */
+function renderReportTracker(){
+  const el = document.getElementById('monthly-report-tracker');
+  if(!el) return;
+  const RPTS = getReports();
+  const done = RPTS.filter(r=>state.reports[r.id]).length;
+  const total = RPTS.length;
+  const missing = RPTS.filter(r=>!state.reports[r.id]);
+  const month = new Date().toLocaleDateString('id-ID',{month:'long',year:'numeric'});
+
+  el.innerHTML = `
+    <div class="rpt-section">
+      <div class="rpt-header">
+        <span class="badge b-bulanan">Bulanan</span>
+        <span class="rpt-header-title">Kompilasi Laporan Tim — ${month}</span>
+        <span class="rpt-count">${done}/${total}</span>
+      </div>
+      <div class="${missing.length>0?'rpt-missing show':'rpt-missing'}">
+        Belum masuk: ${missing.map(r=>r.pic.split(',')[0].trim()).join(', ')}
+      </div>
+      ${RPTS.map(r=>`
+        <div class="rpt-item${state.reports[r.id]?' done':''}" id="rpt-row-${r.id}">
+          <div class="rpt-check${state.reports[r.id]?' chk':''}" onclick="toggleReport('${r.id}')">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+              <path d="M1.5 5L3.5 7.5L8.5 2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="rpt-info">
+            <div class="rpt-name">${r.name}</div>
+            <div class="rpt-desc">${r.pic}</div>
+          </div>
+          <span class="rpt-target">${r.target}</span>
+        </div>`).join('')}
+    </div>`;
+}
+
+function toggleReport(id){
+  state.reports[id] = !state.reports[id];
+  saveState();
+  renderReportTracker();
+  renderDashboard();
+}
+
+
+/* ═══════════════════════════════
+   DAILY HISTORY RENDER
+═══════════════════════════════ */
+function renderDailyHistory(){
+  const el = document.getElementById('d-daily-hist');
+  if(!el) return;
+  const hist = (state.dailyHistory || []).slice(-7);
+  if(!hist.length){
+    el.innerHTML = '<div style="font-size:12px;color:var(--txt3);padding:4px 0 8px;">Riwayat tersedia setelah hari kedua penggunaan.</div>';
+    return;
+  }
+  // Pad to 7 if less
+  const padded = Array(7 - hist.length).fill(null).concat(hist);
+  const bars = padded.map(h => {
+    if(!h) return `<div class="hist-bar-wrap"><div class="hist-bar empty" style="height:4px"></div><div class="hist-date">—</div></div>`;
+    const h_px = Math.max(4, Math.round(h.pct * 0.56));
+    const dparts = h.date.split('-');
+    const dlbl = dparts[2]+'/'+dparts[1];
+    const col = h.pct>=80?'var(--teal-mid)':h.pct>=50?'var(--amber)':'var(--red-mid)';
+    return `<div class="hist-bar-wrap">
+      <div class="hist-pct">${h.pct}%</div>
+      <div class="hist-bar" style="height:${h_px}px;background:${col}"></div>
+      <div class="hist-date">${dlbl}</div>
+    </div>`;
+  }).join('');
+  el.innerHTML = `<div class="hist-chart">${bars}</div>`;
+}
+
+/* ═══════════════════════════════
+   PENGATURAN TAB
+═══════════════════════════════ */
+function renderPengaturan(){
+  // Version
+  const verEl = document.getElementById('sett-ver');
+  if(verEl) verEl.textContent = APP_VERSION;
+
+  // Profile fields
+  const p = state.profile || {};
+  document.getElementById('sett-nama').value    = p.nama    || '';
+  document.getElementById('sett-nip').value     = p.nip     || '';
+  document.getElementById('sett-jabatan').value = p.jabatan || '';
+  document.getElementById('sett-pangkat').value = p.pangkat || '';
+
+  // Task list
+  renderSettingsTasks();
+  renderSettingsReports();
+}
+
+function renderSettingsTasks(){
+  const tasks = getTasks();
+  const cntEl = document.getElementById('sett-task-cnt');
+  if(cntEl) cntEl.textContent = tasks.length + ' tugas';
+
+  const el = document.getElementById('sett-task-list');
+  if(!el) return;
+
+  const isCustom = state.customTasks && state.customTasks.length;
+  el.innerHTML = CADENCES.map(c => {
+    const citems = tasks.filter(t=>t.cadence===c);
+    if(!citems.length) return '';
+    return `<div style="padding:6px 14px 2px;font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:0.5px;background:var(--bg2);">${CADENCE_LABELS[c]}</div>` +
+    citems.map(it => `
+      <div class="task-row">
+        <div class="task-row-body">
+          <div class="task-row-label">${it.label}</div>
+          ${it.sub?`<div class="task-row-sub">${it.sub.slice(0,80)}</div>`:''}
+        </div>
+        <div class="task-row-actions">
+          <button class="btn-task-edit" onclick="openEditTask('${it.id}')">Edit</button>
+          ${isCustom?`<button class="btn-task-del" onclick="deleteTask('${it.id}')">Hapus</button>`:''}
+        </div>
+      </div>`).join('');
+  }).join('');
+}
+
+function renderSettingsReports(){
+  const rpts = getReports();
+  const cntEl = document.getElementById('sett-rpt-cnt');
+  if(cntEl) cntEl.textContent = rpts.length + ' laporan';
+
+  const el = document.getElementById('sett-rpt-list');
+  if(!el) return;
+  const isCustom = state.customReports && state.customReports.length;
+
+  el.innerHTML = rpts.map(r => `
+    <div class="task-row">
+      <div class="task-row-body">
+        <div class="task-row-label">${r.name}</div>
+        <div class="task-row-sub">${r.pic} · ${r.target||'12/tahun'}</div>
+      </div>
+      <div class="task-row-actions">
+        <button class="btn-task-edit" onclick="openEditReport('${r.id}')">Edit</button>
+        ${isCustom?`<button class="btn-task-del" onclick="deleteReport('${r.id}')">Hapus</button>`:''}
+      </div>
+    </div>`).join('');
+}
+
+function saveProfile(){
+  if(!state.profile) state.profile = {};
+  state.profile.nama    = document.getElementById('sett-nama').value.trim()    || DEFAULT_NAMA;
+  state.profile.nip     = document.getElementById('sett-nip').value.trim()     || DEFAULT_NIP;
+  state.profile.jabatan = document.getElementById('sett-jabatan').value.trim() || DEFAULT_JABATAN;
+  state.profile.pangkat = document.getElementById('sett-pangkat').value.trim() || DEFAULT_PANGKAT;
+  saveState();
+  showToast('✓ Profil disimpan');
+}
+
+const DEFAULT_NAMA    = 'Muhammad Subhan Al Zibrah, S.Tr.Met.';
+const DEFAULT_NIP     = '200009262023021004';
+const DEFAULT_JABATAN = 'Ketua Tim Unit Layanan Informasi Meteorologi';
+const DEFAULT_PANGKAT = 'Penata Muda / III a';
+
+/* ── Task CRUD ────────────────── */
+let _editTaskId = null;
+let _editRptId  = null;
+
+function openModal(type){
+  if(type==='addtask' || type==='edittask'){
+    document.getElementById('modal-task-overlay').classList.add('open');
+    return;
+  }
+  if(type==='addrpt' || type==='editrpt'){
+    document.getElementById('modal-rpt-overlay').classList.add('open');
+    return;
+  }
+  // Original modal handling
+  document.getElementById('modal-overlay').classList.add('open');
+  document.getElementById('modal-period').style.display = 'none';
+  document.getElementById('modal-archive').style.display = 'none';
+  document.getElementById('modal-import').style.display = 'none';
+  currentModal = type;
+  if(type==='period'){
+    document.getElementById('modal-period').style.display = 'block';
+    document.getElementById('inp-period').value = state.period||'';
+    document.getElementById('inp-period-note').value = state.periodNote||'';
+  }
+  if(type==='archive'){
+    document.getElementById('modal-archive').style.display = 'block';
+    document.getElementById('inp-arch-label').value = state.period||'';
+    document.getElementById('inp-arch-note').value = '';
+  }
+  if(type==='import'){
+    document.getElementById('modal-import').style.display = 'block';
+  }
+}
+
+function openAddTask(){
+  _editTaskId = null;
+  document.getElementById('task-modal-title').textContent = 'Tambah Tugas Baru';
+  document.getElementById('task-modal-id').value = '';
+  document.getElementById('task-modal-label').value = '';
+  document.getElementById('task-modal-sub').value = '';
+  document.getElementById('task-modal-cadence').value = 'harian';
+  document.getElementById('task-modal-pill').value = '';
+  document.getElementById('task-modal-pill-type').value = 'sup';
+  openModal('addtask');
+}
+
+function openEditTask(id){
+  const tasks = getTasks();
+  const it = tasks.find(t=>t.id===id);
+  if(!it) return;
+  _editTaskId = id;
+  document.getElementById('task-modal-title').textContent = 'Edit Tugas';
+  document.getElementById('task-modal-id').value = id;
+  document.getElementById('task-modal-label').value = it.label;
+  document.getElementById('task-modal-sub').value = it.sub || '';
+  document.getElementById('task-modal-cadence').value = it.cadence;
+  document.getElementById('task-modal-pill').value = it.pills?.[0]?.v || '';
+  document.getElementById('task-modal-pill-type').value = it.pills?.[0]?.t || 'sup';
+  openModal('edittask');
+}
+
+function saveTask(){
+  const label = document.getElementById('task-modal-label').value.trim();
+  if(!label){ showToast('⚠ Label tugas tidak boleh kosong'); return; }
+  const sub     = document.getElementById('task-modal-sub').value.trim();
+  const cadence = document.getElementById('task-modal-cadence').value;
+  const pillV   = document.getElementById('task-modal-pill').value.trim();
+  const pillT   = document.getElementById('task-modal-pill-type').value;
+  const pills   = pillV ? [{t:pillT, v:pillV}] : [];
+
+  // Copy defaults to customTasks if first edit
+  if(!state.customTasks || !state.customTasks.length){
+    state.customTasks = JSON.parse(JSON.stringify(ITEMS));
+  }
+
+  if(_editTaskId){
+    const idx = state.customTasks.findIndex(t=>t.id===_editTaskId);
+    if(idx>=0){
+      state.customTasks[idx] = {...state.customTasks[idx], label, sub, cadence, pills};
+    }
+  } else {
+    const newId = 'custom_'+Date.now();
+    state.customTasks.push({id:newId, cadence, label, sub, pills});
+    state.items[newId] = {done:false, flagged:false, note:''};
+  }
+
+  saveState();
+  closeTaskModal();
+  renderSettingsTasks();
+  renderChecklist();
+  showToast(_editTaskId ? '✓ Tugas diperbarui' : '✓ Tugas baru ditambahkan');
+  _editTaskId = null;
+}
+
+function deleteTask(id){
+  if(!state.customTasks || !state.customTasks.length) state.customTasks = JSON.parse(JSON.stringify(ITEMS));
+  state.customTasks = state.customTasks.filter(t=>t.id!==id);
+  delete state.items[id];
+  saveState();
+  renderSettingsTasks();
+  renderChecklist();
+  showToast('Tugas dihapus');
+}
+
+function resetTasksToDefault(){
+  state.customTasks = [];
+  saveState();
+  renderSettingsTasks();
+  renderChecklist();
+  showToast('✓ Tugas dikembalikan ke default');
+}
+
+function closeTaskModal(){
+  document.getElementById('modal-task-overlay').classList.remove('open');
+  _editTaskId = null;
+}
+
+/* ── Report CRUD ──────────────── */
+function openEditReport(id){
+  const rpts = getReports();
+  const r = rpts.find(x=>x.id===id);
+  if(!r) return;
+  _editRptId = id;
+  document.getElementById('rpt-modal-title').textContent = 'Edit Laporan Bulanan';
+  document.getElementById('rpt-modal-id').value = id;
+  document.getElementById('rpt-modal-name').value = r.name;
+  document.getElementById('rpt-modal-pic').value = r.pic;
+  document.getElementById('rpt-modal-target').value = r.target || '12 laporan/tahun';
+  openModal('editrpt');
+}
+
+function saveReport(){
+  const name = document.getElementById('rpt-modal-name').value.trim();
+  if(!name){ showToast('⚠ Nama laporan tidak boleh kosong'); return; }
+  const pic    = document.getElementById('rpt-modal-pic').value.trim();
+  const target = document.getElementById('rpt-modal-target').value.trim();
+
+  if(!state.customReports || !state.customReports.length){
+    state.customReports = JSON.parse(JSON.stringify(MONTHLY_REPORTS));
+  }
+
+  if(_editRptId){
+    const idx = state.customReports.findIndex(r=>r.id===_editRptId);
+    if(idx>=0) state.customReports[idx] = {...state.customReports[idx], name, pic, target};
+  } else {
+    const newId = 'rpt_'+Date.now();
+    state.customReports.push({id:newId, name, pic, target});
+    state.reports[newId] = false;
+  }
+
+  saveState();
+  closeRptModal();
+  renderSettingsReports();
+  renderReportTracker();
+  showToast(_editRptId ? '✓ Laporan diperbarui' : '✓ Laporan baru ditambahkan');
+  _editRptId = null;
+}
+
+function deleteReport(id){
+  if(!state.customReports || !state.customReports.length) state.customReports = JSON.parse(JSON.stringify(MONTHLY_REPORTS));
+  state.customReports = state.customReports.filter(r=>r.id!==id);
+  delete state.reports[id];
+  saveState();
+  renderSettingsReports();
+  renderReportTracker();
+  showToast('Laporan dihapus');
+}
+
+function resetReportsToDefault(){
+  state.customReports = [];
+  saveState();
+  renderSettingsReports();
+  renderReportTracker();
+  showToast('✓ Laporan dikembalikan ke default');
+}
+
+function closeRptModal(){
+  document.getElementById('modal-rpt-overlay').classList.remove('open');
+  _editRptId = null;
+}
+
+
+/* ── WITA CLOCK ──────────────────── */
+function updateClock(){
+  const el = document.getElementById('d-wita-clock');
+  if(!el) return;
+  const wita = getWITA();
+  const pad = n => String(n).padStart(2,'0');
+  const days = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+  const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  el.textContent = `${days[wita.getDay()]}, ${wita.getDate()} ${months[wita.getMonth()]} ${wita.getFullYear()} · ${pad(wita.getHours())}:${pad(wita.getMinutes())}:${pad(wita.getSeconds())} WITA`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+/* ═══════════════════════════════
+   EXPORT / IMPORT
+═══════════════════════════════ */
+function exportData(){
+  const payload = {
+    _meta: {
+      app: 'Ketua Tim LIM — WAWP 2026',
+      exportedAt: new Date().toISOString(),
+      version: 2
+    },
+    ...state
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const dateStr = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = 'LIM_data_'+dateStr+'.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('✅ Data diekspor — simpan file JSON-nya!');
+}
+
+let _pendingImport = null;
+
+function importData(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try {
+      const parsed = JSON.parse(e.target.result);
+      if(!parsed.items || !parsed.archives){
+        showToast('❌ File tidak valid atau bukan dari aplikasi ini');
+        clearFileInput();
+        return;
+      }
+      _pendingImport = parsed;
+      // Show confirm modal
+      const archCount = parsed.archives ? parsed.archives.length : 0;
+      const doneCount = parsed.items ? Object.values(parsed.items).filter(v=>v.done).length : 0;
+      const flagCount = parsed.items ? Object.values(parsed.items).filter(v=>v.flagged).length : 0;
+      document.getElementById('imp-desc').innerHTML =
+        'File: <strong>'+file.name+'</strong><br>'+
+        'Diekspor pada: '+(parsed._meta?.exportedAt ? new Date(parsed._meta.exportedAt).toLocaleString('id-ID') : '—')+'<br>'+
+        'Isi: '+doneCount+' tugas selesai, '+flagCount+' ditandai, '+archCount+' arsip tersimpan.';
+      openModal('import');
+    } catch(err){
+      showToast('❌ Gagal membaca file — pastikan file .json yang benar');
+      clearFileInput();
+    }
+  };
+  reader.readAsText(file);
+}
+
+function confirmImport(){
+  if(!_pendingImport) return;
+  // Merge archives: keep existing ones not in import, add new from import
+  const existingIds = new Set(state.archives.map(a=>a.id));
+  const newArchives = (_pendingImport.archives||[]).filter(a=>!existingIds.has(a.id));
+  state.archives = [...state.archives, ...newArchives].sort((a,b)=>a.id-b.id);
+  // Replace items & period from import
+  state.items = _pendingImport.items || state.items;
+  if(_pendingImport.period) state.period = _pendingImport.period;
+  if(_pendingImport.periodNote !== undefined) state.periodNote = _pendingImport.periodNote;
+  // Ensure all item keys exist
+  getTasks().forEach(it=>{ if(!state.items[it.id]) state.items[it.id]={done:false,flagged:false,note:''}; });
+  saveState();
+  _pendingImport = null;
+  clearFileInput();
+  closeModal();
+  renderDashboard();
+  renderChecklist();
+  renderArchive();
+  showToast('✅ Data berhasil diimpor!');
+}
+
+function clearFileInput(){
+  const inp = document.getElementById('inp-file-import');
+  if(inp) inp.value = '';
+}
+
+/* ═══════════════════════════════
+   INIT
+═══════════════════════════════ */
+loadState();
+initReports();
+checkAutoReset();
+renderDashboard();
+renderDailyHistory();
+renderChecklist();
+// Set logo
+try{const li=document.getElementById('kop-logo-img');if(li)li.src=BMKG_LOGO;}catch(e){}
+
+/* ═══════════════════════════════
+   PWA SETUP
+═══════════════════════════════ */
+(function initPWA(){
+  // Generate app icon via Canvas
+  function makeIcon(size){
+    try {
+      const c = document.createElement('canvas');
+      c.width = c.height = size;
+      const ctx = c.getContext('2d');
+      const r = size * 0.18;
+      ctx.beginPath();
+      ctx.moveTo(r, 0); ctx.lineTo(size-r, 0);
+      ctx.quadraticCurveTo(size,0,size,r);
+      ctx.lineTo(size,size-r);
+      ctx.quadraticCurveTo(size,size,size-r,size);
+      ctx.lineTo(r,size);
+      ctx.quadraticCurveTo(0,size,0,size-r);
+      ctx.lineTo(0,r);
+      ctx.quadraticCurveTo(0,0,r,0);
+      ctx.closePath();
+      ctx.fillStyle = '#0F6E56';
+      ctx.fill();
+      // White circle accent
+      ctx.beginPath();
+      ctx.arc(size*0.5, size*0.42, size*0.28, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(255,255,255,0.15)';
+      ctx.fill();
+      // "L" text
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = `700 ${size*0.38}px 'Plus Jakarta Sans',sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('LIM', size*0.5, size*0.46);
+      // "WAWP" small text
+      ctx.font = `500 ${size*0.11}px 'Plus Jakarta Sans',sans-serif`;
+      ctx.fillStyle = 'rgba(255,255,255,0.75)';
+      ctx.fillText('WAWP · BMKG', size*0.5, size*0.74);
+      return c.toDataURL('image/png');
+    } catch(e){ return ''; }
+  }
+
+  const icon192 = makeIcon(192);
+  const icon512 = makeIcon(512);
+
+  // Set apple touch icon
+  if(icon192){
+    document.getElementById('apple-icon').href = icon192;
+  }
+
+  // Build and inject manifest
+  const manifest = {
+    name: 'Ketua Tim LIM — WAWP',
+    short_name: 'Tim LIM',
+    description: 'Aplikasi manajemen tugas Ketua Tim Unit Layanan Informasi Meteorologi BMKG',
+    start_url: './',
+    scope: './',
+    display: 'standalone',
+    orientation: 'portrait-primary',
+    background_color: '#FFFFFF',
+    theme_color: '#0F6E56',
+    lang: 'id',
+    icons: [
+      {src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any maskable'},
+      {src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any maskable'}
+    ],
+    categories: ['productivity', 'utilities'],
+    shortcuts: [
+      {name:'Checklist', short_name:'Checklist', url:'./?tab=checklist', description:'Buka tab checklist'},
+      {name:'Arsip', short_name:'Arsip', url:'./?tab=arsip', description:'Buka tab arsip'}
+    ]
+  };
+
+  try {
+    const blob = new Blob([JSON.stringify(manifest)], {type:'application/manifest+json'});
+    const url = URL.createObjectURL(blob);
+    document.getElementById('pwa-manifest').href = url;
+  } catch(e){}
+
+  // Register service worker (only on http/https — works on localhost too)
+  if('serviceWorker' in navigator && location.protocol !== 'file:'){
+    const SW = `
+const CV='lim-cache-v1';
+const ASSETS=[location.href];
+self.addEventListener('install',e=>{
+  e.waitUntil(
+    caches.open(CV).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())
+  );
+});
+self.addEventListener('activate',e=>{
+  e.waitUntil(
+    caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CV).map(k=>caches.delete(k))))
+    .then(()=>clients.claim())
+  );
+});
+self.addEventListener('fetch',e=>{
+  e.respondWith(
+    fetch(e.request).then(r=>{
+      if(r&&r.status===200){
+        const rc=r.clone();
+        caches.open(CV).then(c=>c.put(e.request,rc));
+      }
+      return r;
+    }).catch(()=>caches.match(e.request))
+  );
+});`;
+    try {
+      const swBlob = new Blob([SW], {type:'application/javascript'});
+      const swUrl = URL.createObjectURL(swBlob);
+      navigator.serviceWorker.register(swUrl, {scope:'./'})
+        .then(()=>console.log('SW registered'))
+        .catch(()=>{});
+    } catch(e){}
+  }
+
+  // Install prompt
+  let _deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    _deferredPrompt = e;
+    const banner = document.getElementById('install-banner');
+    if(banner && !localStorage.getItem('pwa_dismissed')) {
+      banner.classList.add('show');
+    }
+  });
+
+  window.triggerInstall = function(){
+    if(!_deferredPrompt) return;
+    _deferredPrompt.prompt();
+    _deferredPrompt.userChoice.then(r=>{
+      if(r.outcome==='accepted') showToast('✅ Aplikasi berhasil diinstal!');
+      _deferredPrompt = null;
+      document.getElementById('install-banner').classList.remove('show');
+    });
+  };
+
+  window.dismissInstall = function(){
+    document.getElementById('install-banner').classList.remove('show');
+    localStorage.setItem('pwa_dismissed','1');
+  };
+
+  window.addEventListener('appinstalled', ()=>{
+    document.getElementById('install-banner').classList.remove('show');
+    showToast('🎉 Aplikasi terinstal di perangkat!');
+  });
+
+  // Handle shortcut URL params
+  const tab = new URLSearchParams(location.search).get('tab');
+  if(tab && ['beranda','checklist','arsip','print'].includes(tab)){
+    setTimeout(()=>switchTab(tab), 100);
+  }
+})();
+</script>
+</body>
+</html>
