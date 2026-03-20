@@ -464,6 +464,8 @@ button{font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;}
 }
 @media print{.install-banner{display:none!important;}}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
 
@@ -715,8 +717,16 @@ button{font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;}
     </div>
     <div class="cap-save-row">
       <button class="btn-cap-save" onclick="saveCapaian()">Simpan</button>
+      <button class="btn-cap-print" onclick="downloadPdfJs()" id="btn-pdfjs"
+        style="background:var(--teal);color:white;border-color:var(--teal);font-weight:600;flex:1.5;">
+        Unduh PDF
+      </button>
       <button class="btn-cap-print" onclick="printCapaian()">Pratinjau</button>
-      <button class="btn-cap-print" onclick="exportForPdf()" style="background:var(--purple-light);border-color:#AFA9EC;color:var(--purple);font-weight:600;" title="Ekspor JSON lalu jalankan generate_capaian_pdf.py">Ekspor → PDF.py</button>
+      <button class="btn-cap-print" onclick="exportForPdf()"
+        style="background:var(--purple-light);border-color:#AFA9EC;color:var(--purple);font-weight:600;"
+        title="Untuk pengguna laptop: ekspor JSON lalu jalankan generate_capaian_pdf.py">
+        .py
+      </button>
     </div>
   </div>
 
@@ -2047,6 +2057,8 @@ function openPrintWindow(){
     .btn-c{background:#F0EFE9;color:#5A5955}
   }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
 <div class="print-btn-bar no-print" style="display:flex">
@@ -2487,6 +2499,205 @@ function printCapaian(){
   win.document.close();
 }
 
+
+
+
+/* ═══════════════════════════════
+   jsPDF IN-BROWSER PDF GENERATOR
+   Works on web, HP, no Python needed
+═══════════════════════════════ */
+function downloadPdfJs(){
+  // Guard: jsPDF must be loaded
+  if(typeof window.jspdf === 'undefined'){
+    showToast('⏳ Memuat jsPDF, coba lagi sebentar...');
+    return;
+  }
+
+  saveCapaian();
+
+  const year   = parseInt(document.getElementById('cap-year').value)    || 2026;
+  const q      = parseInt(document.getElementById('cap-quarter').value) || 1;
+  const key    = getCapKey(year, q);
+  const qLabel = Q_LABELS[q];
+  const mLbls  = M_LABELS[q] || ['Januari','Februari','Maret'];
+  const qShort = 'Q' + q;
+
+  const prof     = state.profile || {};
+  const rawNama  = prof.nama || 'Muhammad Subhan Al Zibrah, S.Tr.Met.';
+  const nip      = prof.nip  || '200009262023021004';
+  const namaTtd  = rawNama.replace(/^Muhammad\b/, 'Muh.');
+
+  const inputDate = (document.getElementById('cap-report-date').value || '').trim();
+  const wita = getWITA();
+  const MN = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const reportDate = inputDate || (wita.getDate()+' '+MN[wita.getMonth()+1]+' '+wita.getFullYear());
+
+  // Show loading state
+  const btn = document.getElementById('btn-pdfjs');
+  const origText = btn.textContent;
+  btn.textContent = 'Membuat PDF...';
+  btn.disabled = true;
+
+  // Use setTimeout so UI updates before heavy work
+  setTimeout(function(){
+    try {
+      _buildJsPdf(year, q, key, qLabel, mLbls, qShort, namaTtd, nip, reportDate);
+      showToast('✅ PDF berhasil diunduh!');
+    } catch(e) {
+      console.error('jsPDF error:', e);
+      showToast('⚠ Gagal: ' + e.message);
+    } finally {
+      btn.textContent = origText;
+      btn.disabled = false;
+    }
+  }, 50);
+}
+
+function _buildJsPdf(year, q, key, qLabel, mLbls, qShort, namaTtd, nip, reportDate){
+  const { jsPDF } = window.jspdf;
+
+  // A4 portrait, mm units
+  const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+
+  const PW = 210, PH = 297;
+  const ML = 25, MR = 20, MT_content = 10;
+  const CW = PW - ML - MR; // 165mm
+
+  // ── KOP ──────────────────────────────────────────────────────────────
+  // KOP image: 1200x180px → at A4 width 210mm → height = 210*180/1200 = 31.5mm
+  const kopH = PW * 180 / 1200; // ≈ 31.5mm
+  doc.addImage(KOP_IMG, 'JPEG', 0, 0, PW, kopH);
+  // Rule under KOP
+  doc.setDrawColor(0);
+  doc.setLineWidth(0.5);
+  doc.line(0, kopH, PW, kopH);
+
+  let y = kopH + 8; // start of content
+
+  // ── TITLES ───────────────────────────────────────────────────────────
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(12);
+  const titleLines = [
+    'LAPORAN EVALUASI CAPAIAN INDIKATOR KINERJA INDIVIDU',
+    'TIM LAYANAN INFORMASI METEOROLOGI',
+    qLabel.toUpperCase() + ' TAHUN ' + year,
+  ];
+  titleLines.forEach(function(line){
+    doc.text(line, PW/2, y, {align:'center'});
+    y += 6;
+  });
+  y += 3;
+
+  // ── TABLE ─────────────────────────────────────────────────────────────
+  // Col widths in mm (proportional, total = CW = 165mm)
+  // 8.3, 51.6, 10.4, 7.4, 7.4, 7.4, 7.4 of CW
+  const colW = [8.3,51.6,10.4,7.4,7.4,7.4,7.4].map(function(p){ return CW*p/100; });
+
+  // Build rows
+  const tableBody = LIM_IKI.map(function(iki, idx){
+    const m1 = getCapValue(key, iki.no, 'm1');
+    const m2 = getCapValue(key, iki.no, 'm2');
+    const m3 = getCapValue(key, iki.no, 'm3');
+    const qv = getCapValue(key, iki.no, 'q') || sumMonths(iki, m1, m2, m3);
+    return [iki.no, iki.indi, iki.target, m1, m2, m3, qv];
+  });
+
+  doc.autoTable({
+    startY: y,
+    margin: { left: ML, right: MR },
+    tableWidth: CW,
+    columnStyles: {
+      0: { cellWidth: colW[0], halign:'center', fontSize:8.5 },
+      1: { cellWidth: colW[1], halign:'left',   fontSize:9   },
+      2: { cellWidth: colW[2], halign:'center', fontSize:9   },
+      3: { cellWidth: colW[3], halign:'center', fontSize:9   },
+      4: { cellWidth: colW[4], halign:'center', fontSize:9   },
+      5: { cellWidth: colW[5], halign:'center', fontSize:9   },
+      6: { cellWidth: colW[6], halign:'center', fontSize:9, fontStyle:'bold' },
+    },
+    head: [[
+      { content:'INDIKATOR KINERJA', colSpan:2, rowSpan:2, styles:{halign:'center', valign:'middle', fontStyle:'bold', fontSize:9} },
+      { content:'TARGET',            rowSpan:2, styles:{halign:'center', valign:'middle', fontStyle:'bold', fontSize:9} },
+      { content:'CAPAIAN',           colSpan:4, styles:{halign:'center', fontStyle:'bold', fontSize:9} },
+    ],[
+      mLbls[0].slice(0,3).toUpperCase(),
+      mLbls[1].slice(0,3).toUpperCase(),
+      mLbls[2].slice(0,3).toUpperCase(),
+      qShort,
+    ]],
+    body: tableBody,
+    headStyles: {
+      fillColor: [156, 194, 229],  // #9CC2E5
+      textColor: [0,0,0],
+      fontStyle: 'bold',
+      fontSize: 9,
+      lineWidth: 0.25,
+      lineColor: [0,0,0],
+      valign: 'middle',
+    },
+    bodyStyles: {
+      fontSize: 9,
+      textColor: [0,0,0],
+      lineWidth: 0.25,
+      lineColor: [0,0,0],
+      valign: 'middle',
+      minCellHeight: 6,
+    },
+    alternateRowStyles: {
+      fillColor: [242, 242, 242],
+    },
+    styles: {
+      cellPadding: { top:1.8, bottom:1.8, left:1.5, right:1.5 },
+      overflow: 'linebreak',
+      font: 'helvetica',
+    },
+    didDrawPage: function(data){
+      // Rule under KOP on every page except first (first already drawn)
+      if(doc.internal.getCurrentPageInfo().pageNumber > 1){
+        // No KOP on pages 2+ — just a small top margin rule
+        doc.setDrawColor(200);
+        doc.setLineWidth(0.2);
+        doc.line(ML, 8, PW-MR, 8);
+      }
+    },
+  });
+
+  // ── SIGNATURE ────────────────────────────────────────────────────────
+  let sigY = doc.lastAutoTable.finalY + 6;
+
+  // Check if signature fits on current page, if not add page
+  if(sigY + 40 > PH - 15){
+    doc.addPage();
+    sigY = 20;
+  }
+
+  // Right-aligned block, 65mm wide from right edge
+  const sigX = PW - MR - 65;
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(11);
+  doc.text('Kolaka,  ' + reportDate, sigX, sigY);
+  doc.text('Ketua Tim,', sigX, sigY + 5.5);
+
+  // Space for signature
+  sigY += 5.5 + 22;
+
+  // Underlined name
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(11);
+  const nameW = doc.getTextWidth(namaTtd);
+  doc.text(namaTtd, sigX, sigY);
+  doc.setLineWidth(0.4);
+  doc.line(sigX, sigY + 0.8, sigX + nameW, sigY + 0.8);
+
+  // NIP
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10);
+  doc.text('NIP. ' + nip, sigX, sigY + 5.5);
+
+  // ── SAVE ─────────────────────────────────────────────────────────────
+  const ql = {1:'Q1',2:'Q2',3:'Q3',4:'Q4'}[q]||'Q';
+  doc.save('LIM_Capaian_' + ql + '_' + year + '.pdf');
+}
 
 
 /* ═══════════════════════════════
