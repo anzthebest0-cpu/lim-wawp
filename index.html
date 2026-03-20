@@ -540,13 +540,15 @@ button{font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;}
   <!-- CETAK -->
   <div class="view" id="view-print">
     <div class="print-toolbar">
-      <button class="btn-print" onclick="window.print()">
+      <button class="btn-print" onclick="openPrintWindow()">
         <svg fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z"/></svg>
-        Cetak Dokumen
+        Cetak / Simpan PDF
       </button>
-      <button class="btn-share" onclick="copyPrintText()">Salin</button>
+      <button class="btn-share" onclick="copyPrintText()">Salin Teks</button>
     </div>
-
+    <div style="background:var(--amber-light);border:0.5px solid #EF9F27;border-radius:var(--r-sm);padding:10px 14px;margin:0 16px 12px;font-size:12px;color:var(--amber);line-height:1.5;">
+      Pratinjau di bawah. Tap <strong>Cetak / Simpan PDF</strong> untuk membuka dokumen bersih di tab baru — lalu cetak atau simpan sebagai PDF dari sana.
+    </div>
     <div class="print-preview" id="print-doc">
       <!-- Kop Surat -->
       <div class="doc-kop">
@@ -1762,7 +1764,249 @@ setInterval(updateClock, 1000);
 updateClock();
 
 /* ═══════════════════════════════
-   EXPORT / IMPORT
+   CLEAN PRINT WINDOW
+═══════════════════════════════ */
+function openPrintWindow(){
+  renderPrint();
+  const now = new Date();
+  const wita = getWITA();
+  const pad = n => String(n).padStart(2,'0');
+  const MONTHS = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const dateStr = `${wita.getDate()} ${MONTHS[wita.getMonth()+1]} ${wita.getFullYear()}`;
+  const timeStr = `${pad(wita.getHours())}:${pad(wita.getMinutes())} WITA`;
+
+  const TASKS = getTasks();
+  const RPTS  = getReports();
+  const prof  = state.profile || {};
+  const nama  = prof.nama    || 'Muhammad Subhan Al Zibrah, S.Tr.Met.';
+  const nip   = prof.nip     || '200009262023021004';
+  const jabatan = prof.jabatan || 'Ketua Tim Unit Layanan Informasi Meteorologi';
+  const pangkat = prof.pangkat || 'Penata Muda / III a';
+
+  const done    = TASKS.filter(it=>state.items[it.id]?.done).length;
+  const total   = TASKS.length;
+  const flagged = TASKS.filter(it=>state.items[it.id]?.flagged).length;
+  const pct     = total ? Math.round(done/total*100) : 0;
+  const pctColor = pct>=80?'#0F6E56':pct>=50?'#854F0B':'#A32D2D';
+
+  // Build cadence progress rows
+  const cadRows = CADENCES.map(c=>{
+    const ci = TASKS.filter(it=>it.cadence===c);
+    const cd = ci.filter(it=>state.items[it.id]?.done).length;
+    const cp = ci.length ? Math.round(cd/ci.length*100) : 0;
+    return `<tr><td>${CADENCE_LABELS[c]}</td><td style="text-align:center">${cd}</td><td style="text-align:center">${ci.length}</td><td style="text-align:center;font-weight:600;color:${cp>=80?'#0F6E56':cp>=50?'#854F0B':'#A32D2D'}">${cp}%</td></tr>`;
+  }).join('');
+
+  // Build task tables per cadence
+  const taskTables = CADENCES.map(c=>{
+    const ci = TASKS.filter(it=>it.cadence===c);
+    if(!ci.length) return '';
+    const cd = ci.filter(it=>state.items[it.id]?.done).length;
+    const rows = ci.map((it,i)=>{
+      const st = state.items[it.id]||{};
+      const statusTxt = st.flagged ? '⚠ Perlu Perhatian' : st.done ? '✓ Selesai' : '— Belum';
+      const statusCol = st.flagged ? '#A32D2D' : st.done ? '#0F6E56' : '#888780';
+      const note = (st.note||'').slice(0,80)||'—';
+      const pills = (it.pills||[]).map(p=>p.v).join(', ')||'—';
+      return `<tr>
+        <td style="text-align:center;width:28px">${i+1}</td>
+        <td>${it.label}</td>
+        <td style="font-weight:600;color:${statusCol};white-space:nowrap">${statusTxt}</td>
+        <td style="color:#5A5955;font-size:10px">${pills}</td>
+        <td style="color:#5A5955;font-style:italic;font-size:10px">${note}</td>
+      </tr>`;
+    }).join('');
+    return `<div style="margin-bottom:12px">
+      <div style="background:#E1F5EE;color:#0F6E56;font-weight:700;font-size:11px;padding:5px 8px;text-transform:uppercase;letter-spacing:0.5px">
+        ${CADENCE_LABELS[c]} — ${cd}/${ci.length} selesai
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:11px">
+        <thead><tr style="background:#F0FAF6;color:#0F6E56">
+          <th style="padding:5px 6px;border:0.5px solid #D3D1C7;text-align:center">No.</th>
+          <th style="padding:5px 6px;border:0.5px solid #D3D1C7;text-align:left">Uraian Tugas</th>
+          <th style="padding:5px 6px;border:0.5px solid #D3D1C7;text-align:left">Status</th>
+          <th style="padding:5px 6px;border:0.5px solid #D3D1C7;text-align:left">IKI / Target</th>
+          <th style="padding:5px 6px;border:0.5px solid #D3D1C7;text-align:left">Catatan</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+  }).join('');
+
+  // Build report tracker table
+  const missingRpts = RPTS.filter(r=>!state.reports[r.id]);
+  const rptRows = RPTS.map((r,i)=>{
+    const done2 = state.reports[r.id];
+    return `<tr style="background:${i%2?'#F7F6F2':'#fff'}">
+      <td style="text-align:center;width:28px">${i+1}</td>
+      <td>${r.name}</td>
+      <td style="color:#5A5955;font-size:10px">${r.pic}</td>
+      <td style="font-weight:600;color:${done2?'#0F6E56':'#888780'}">${done2?'✓ Masuk':'— Belum Masuk'}</td>
+    </tr>`;
+  }).join('');
+
+  // Catatan from the doc textarea
+  const catatanEl = document.getElementById('doc-catatan-box');
+  const catatan = catatanEl ? catatanEl.innerText : '';
+  const catatanDisplay = (catatan && !catatan.startsWith('(Klik')) ? catatan : '';
+
+  const html = `<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Laporan Kinerja Ketua Tim LIM — ${state.period||'Periode Aktif'}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Times New Roman',Georgia,serif;font-size:12px;color:#1C1C1A;background:#fff;padding:20mm 20mm 25mm}
+  h1{font-size:14px;font-weight:bold;text-align:center;text-transform:uppercase;letter-spacing:0.5px;margin:8px 0 4px}
+  h2{font-size:12px;text-align:center;color:#5A5955;margin-bottom:3px}
+  h3{font-size:11px;text-align:center;color:#888780;margin-bottom:12px;font-family:monospace}
+  .kop{display:flex;align-items:center;gap:14px;border-bottom:2.5px solid #0F6E56;padding-bottom:10px;margin-bottom:10px}
+  .kop-logo{width:64px;height:64px;object-fit:contain;flex-shrink:0}
+  .kop-text .org{font-size:13px;font-weight:bold;color:#0F6E56;line-height:1.3}
+  .kop-text .sub{font-size:10px;color:#5A5955;margin-top:2px}
+  .kop-text .addr{font-size:9px;color:#888780;margin-top:1px}
+  .section-title{font-size:10px;font-weight:bold;color:#0F6E56;text-transform:uppercase;letter-spacing:0.6px;margin:14px 0 5px;border-bottom:0.5px solid #D3D1C7;padding-bottom:3px}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:4px 6px;border:0.5px solid #D3D1C7;vertical-align:top;line-height:1.4}
+  th{background:#E1F5EE;color:#0F6E56;font-weight:600;font-size:11px}
+  tr:nth-child(even) td{background:#F7F6F2}
+  .meta-table td:first-child{color:#5A5955;width:145px;font-size:11px}
+  .meta-table td:nth-child(2){width:14px;color:#5A5955}
+  .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+  .stat-cell{border:0.5px solid #D3D1C7;border-radius:4px;padding:8px;text-align:center;background:#F7F6F2}
+  .stat-cell .n{font-size:22px;font-weight:bold;font-family:monospace}
+  .stat-cell .l{font-size:10px;color:#5A5955;margin-top:2px}
+  .cad-prog{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+  .cad-prog-name{font-size:11px;color:#5A5955;width:90px;flex-shrink:0}
+  .cad-prog-bar{flex:1;height:5px;background:#F0EFE9;border-radius:3px;overflow:hidden}
+  .cad-prog-fill{height:100%;border-radius:3px}
+  .cad-prog-val{font-size:10px;color:#888780;width:34px;text-align:right;font-family:monospace}
+  .note-box{border:0.5px solid #D3D1C7;border-radius:4px;background:#F7F6F2;min-height:60px;padding:10px;font-size:12px;color:#1C1C1A;white-space:pre-wrap}
+  .ttd-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:10px}
+  .ttd-box{text-align:center}
+  .ttd-box .role{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;margin-bottom:55px;color:#5A5955}
+  .ttd-box .line{border-top:1px solid #1C1C1A;padding-top:5px}
+  .ttd-box .name{font-size:12px;font-weight:bold}
+  .ttd-box .nip{font-size:10px;color:#5A5955}
+  .no-print{display:none}
+  @media print{
+    body{padding:10mm 15mm 20mm}
+    .no-print{display:none!important}
+    .stat-cell,.kop-text .org,th{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  }
+  @media screen{
+    body{max-width:210mm;margin:0 auto;padding:20mm;box-shadow:0 0 30px rgba(0,0,0,0.15)}
+    .print-btn-bar{position:fixed;top:16px;right:16px;display:flex;gap:8px;z-index:999}
+    .print-btn-bar button{border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:sans-serif}
+    .btn-p{background:#0F6E56;color:#fff}
+    .btn-c{background:#F0EFE9;color:#5A5955}
+  }
+</style>
+</head>
+<body>
+<div class="print-btn-bar no-print" style="display:flex">
+  <button class="btn-p" onclick="window.print()">🖨 Cetak / Simpan PDF</button>
+  <button class="btn-c" onclick="window.close()">✕ Tutup</button>
+</div>
+
+<div class="kop">
+  <img class="kop-logo" src="${BMKG_LOGO}" alt="BMKG">
+  <div class="kop-text">
+    <div class="org">BADAN METEOROLOGI, KLIMATOLOGI, DAN GEOFISIKA</div>
+    <div class="sub">STASIUN METEOROLOGI KELAS III SANGIA NIBANDERA KOLAKA</div>
+    <div class="addr">Jalan Protokol No. 1, Pomalaa, Kolaka 93562 · Telp: (0405) 2401622 · Email: stamet.kolaka@bmkg.go.id</div>
+  </div>
+</div>
+
+<h1>Laporan Kinerja Ketua Tim Unit Layanan Informasi Meteorologi</h1>
+<h2>Berdasarkan SK KEP.20/KPUM/I/2026 dan Cascading IKU/IKI 2026</h2>
+<h3>Periode: ${state.period||'Periode Aktif'} · Dicetak: ${dateStr}, ${timeStr}</h3>
+
+<div class="section-title">A. Identitas Pejabat</div>
+<table class="meta-table">
+  <tr><td>Nama</td><td>:</td><td>${nama}</td></tr>
+  <tr><td>NIP</td><td>:</td><td>${nip}</td></tr>
+  <tr><td>Jabatan</td><td>:</td><td>${jabatan}</td></tr>
+  <tr><td>Pangkat / Golongan</td><td>:</td><td>${pangkat}</td></tr>
+  <tr><td>Unit Kerja</td><td>:</td><td>Stasiun Meteorologi Kelas III Sangia Nibandera Kolaka (WAWP)</td></tr>
+  <tr><td>Periode Laporan</td><td>:</td><td>${state.period||'—'}${state.periodNote?' — '+state.periodNote:''}</td></tr>
+  <tr><td>Tanggal Cetak</td><td>:</td><td>${dateStr}, ${timeStr}</td></tr>
+</table>
+
+<div class="section-title">B. Ringkasan Capaian</div>
+<div class="stat-grid">
+  <div class="stat-cell"><div class="n" style="color:${pctColor}">${pct}%</div><div class="l">Total Capaian</div></div>
+  <div class="stat-cell"><div class="n" style="color:#0F6E56">${done}</div><div class="l">Tugas Selesai</div></div>
+  <div class="stat-cell"><div class="n">${total-done}</div><div class="l">Masih Tertunda</div></div>
+  <div class="stat-cell"><div class="n" style="color:${flagged>0?'#A32D2D':'#888780'}">${flagged}</div><div class="l">Ditandai Merah</div></div>
+</div>
+${CADENCES.map(c=>{
+  const ci=TASKS.filter(it=>it.cadence===c);
+  const cd=ci.filter(it=>state.items[it.id]?.done).length;
+  const cp=ci.length?Math.round(cd/ci.length*100):0;
+  const col=cp>=80?'#0F6E56':cp>=50?'#854F0B':'#A32D2D';
+  return `<div class="cad-prog">
+    <div class="cad-prog-name">${CADENCE_LABELS[c]}</div>
+    <div class="cad-prog-bar"><div class="cad-prog-fill" style="width:${cp}%;background:${col}"></div></div>
+    <div class="cad-prog-val">${cp}%</div>
+  </div>`;
+}).join('')}
+
+<div class="section-title">C. Detail Tugas per Kadence</div>
+${taskTables}
+
+<div class="section-title">D. Kompilasi Laporan Bulanan Tim</div>
+<p style="font-size:11px;color:${missingRpts.length?'#A32D2D':'#0F6E56'};margin-bottom:6px;font-weight:600">
+  Status: ${RPTS.filter(r=>state.reports[r.id]).length}/${RPTS.length} laporan sudah masuk.${missingRpts.length?' Belum masuk dari: '+missingRpts.map(r=>r.pic.split(',')[0].trim()).join(', ')+'.':' Semua laporan lengkap.'}
+</p>
+<table>
+  <thead><tr><th style="width:28px">No.</th><th>Nama Laporan</th><th>PIC</th><th style="width:110px">Status</th></tr></thead>
+  <tbody>${rptRows}</tbody>
+</table>
+
+<div class="section-title">E. Catatan & Keterangan Tambahan</div>
+<div class="note-box">${catatanDisplay || '(Tidak ada catatan tambahan)'}</div>
+
+<div style="margin-top:20px">
+<div class="ttd-grid">
+  <div class="ttd-box">
+    <div class="role">Mengetahui,<br>Kepala Stasiun Meteorologi<br>Sangia Nibandera Kolaka</div>
+    <div class="line">
+      <div class="name">DANU TRIATMOKO</div>
+      <div class="nip">NIP. —</div>
+    </div>
+  </div>
+  <div class="ttd-box">
+    <div class="role">Kolaka, ${dateStr}<br>Ketua Tim Unit Layanan Informasi Meteorologi</div>
+    <div class="line">
+      <div class="name">${nama}</div>
+      <div class="nip">NIP. ${nip}</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+  // Style no-print buttons properly on screen
+  document.querySelector('.print-btn-bar').style.display = 'flex';
+  // Auto-focus print dialog when opened from mobile
+  if(/Mobi|Android/i.test(navigator.userAgent)){
+    setTimeout(()=>{ if(confirm('Buka dialog cetak sekarang?')) window.print(); }, 600);
+  }
+<\/script>
+</body></html>`;
+
+  const win = window.open('', '_blank');
+  if(!win){
+    showToast('⚠ Izinkan pop-up untuk mencetak');
+    return;
+  }
+  win.document.write(html);
+  win.document.close();
+}
+
 ═══════════════════════════════ */
 function exportData(){
   const payload = {
